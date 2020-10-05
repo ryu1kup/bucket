@@ -14,7 +14,7 @@ BucketPrimaryGeneratorAction::~BucketPrimaryGeneratorAction(){
 
 void BucketPrimaryGeneratorAction::GeneratePrimaries(G4Event *pEvent){
     // laser beam spreads
-    const G4ThreeVector hMomentumAxis = m_pParticleGun->GetParticleMomentumDirection();
+    const auto hMomentumAxis = G4ThreeVector(0, 0, -1);
     constexpr float spread = 7.5 * deg;
     G4ThreeVector hDirection(0, 0, 1);
     hDirection.rotate(spread * G4UniformRand(), G4ThreeVector(0, 1, 0));

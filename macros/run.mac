@@ -1,11 +1,10 @@
 # verbosity
-/tracking/verbose 0
+/tracking/verbose 1
 
 # primary particle
 /gun/particle opticalphoton
 /gun/energy 2.63796 eV
-/gun/position 0 0 129.5 mm
-/gun/direction 0 0 -1 mm
+/gun/position 50 0 129.5 mm
 
 # invoke the application
 /run/beamOn 300000

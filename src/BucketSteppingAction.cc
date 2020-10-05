@@ -58,6 +58,13 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
         }
     }
 
+    // increment # of reflections
+    if ((hPreVolume == "ReflectorSide" && hPostVolume == "Water")
+            || (hPreVolume == "ReflectorBottom" && hPostVolume == "Water")
+            || (hPreVolume == "ReflectorLid" && hPostVolume == "Water")) {
+        m_pAnalysisManager->IncrementNumReflection();
+    }
+
     // time that PMT detects a photon
     if (hPreVolume == "Water" && hPostVolume == "PMT1") {
         const G4double dTime = pStep->GetPostStepPoint()->GetGlobalTime();
@@ -67,9 +74,4 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
         m_pAnalysisManager->DetectPhoton(dTime);
     }
 
-    if ((hPreVolume == "ReflectorSide" && hPostVolume == "Water")
-            || (hPreVolume == "ReflectorBottom" && hPostVolume == "Water")
-            || (hPreVolume == "ReflectorLid" && hPostVolume == "Water")) {
-        m_pAnalysisManager->IncrementNumReflection();
-    }
 }
