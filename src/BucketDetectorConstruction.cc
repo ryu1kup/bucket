@@ -182,10 +182,9 @@ void BucketDetectorConstruction::ConstructBucket(){
     m_pFiberCasePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dFiberCaseOffsetX, 0, dFiberCaseOffsetZ), "FiberCase", m_pFiberCaseLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
 
     // laser injector
-    constexpr G4double dInjectorBun1InnerRadius = 3 * mm;
     constexpr G4double dInjectorBun1OuterRadius = 18 * mm;
     constexpr G4double dInjectorBun1HalfZ = 3 * mm;
-    auto *pInjectorBun1Tubs = new G4Tubs("InjectorBun1Tubs", dInjectorBun1InnerRadius, dInjectorBun1OuterRadius, dInjectorBun1HalfZ, 0, twopi);
+    auto *pInjectorBun1Tubs = new G4Tubs("InjectorBun1Tubs", 0, dInjectorBun1OuterRadius, dInjectorBun1HalfZ, 0, twopi);
 
     m_pInjectorBun1LogicalVolume = new G4LogicalVolume(pInjectorBun1Tubs, SS304L, "InjectorBun1LogicalVolume");
 
@@ -202,9 +201,10 @@ void BucketDetectorConstruction::ConstructBucket(){
     constexpr G4double dInjectorPattyOffsetZ = dInjectorBun1OffsetZ - dInjectorBun1HalfZ - dInjectorPattyHalfZ;
     m_pInjectorPattyPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dInjectorPattyOffsetX, 0 ,dInjectorPattyOffsetZ), "InjectorPatty", m_pInjectorPattyLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
 
+    constexpr G4double dInjectorBun2InnerRadius = 3 * mm;
     constexpr G4double dInjectorBun2OuterRadius = dInjectorPattyOuterRadius;
     constexpr G4double dInjectorBun2HalfZ = dInjectorBun1HalfZ;
-    auto *pInjectorBun2Tubs = new G4Tubs("InjectorBun2Tubs", 0, dInjectorBun2OuterRadius, dInjectorBun2HalfZ, 0, twopi);
+    auto *pInjectorBun2Tubs = new G4Tubs("InjectorBun2Tubs", dInjectorBun2InnerRadius, dInjectorBun2OuterRadius, dInjectorBun2HalfZ, 0, twopi);
 
     m_pInjectorBun2LogicalVolume = new G4LogicalVolume(pInjectorBun2Tubs, SS304L, "InjectorBun2LogicalVolume");
 
