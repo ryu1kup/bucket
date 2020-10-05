@@ -4,7 +4,7 @@
 #include <G4OpBoundaryProcess.hh>
 #include <G4SystemOfUnits.hh>
 
-BucketSteppingAction::BucketSteppingAction(){}
+BucketSteppingAction::BucketSteppingAction(BucketAnalysisManager *pAnalysisManager) : m_pAnalysisManager(pAnalysisManager) {}
 
 BucketSteppingAction::~BucketSteppingAction(){}
 
@@ -61,9 +61,15 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
     // time that PMT detects a photon
     if (hPreVolume == "Water" && hPostVolume == "PMT1") {
         const G4double dTime = pStep->GetPostStepPoint()->GetGlobalTime();
-        G4cout << "PMT1," << dTime / ns << G4endl;
+        m_pAnalysisManager->DetectPhoton(dTime);
     } else if (hPreVolume == "Water" && hPostVolume == "PMT2") {
         const G4double dTime = pStep->GetPostStepPoint()->GetGlobalTime();
-        G4cout << "PMT2," << dTime / ns << G4endl;
+        m_pAnalysisManager->DetectPhoton(dTime);
+    }
+
+    if ((hPreVolume == "ReflectorSide" && hPostVolume == "Water")
+            || (hPreVolume == "ReflectorBottom" && hPostVolume == "Water")
+            || (hPreVolume == "ReflectorLid" && hPostVolume == "Water")) {
+        m_pAnalysisManager->IncrementNumReflection();
     }
 }

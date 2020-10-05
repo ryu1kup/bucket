@@ -13,6 +13,7 @@ std::map<std::string, std::string> parse_arguments(int argc, char **argv) {
         {"-p", "../macros/preinit.mac"},
             {"-r", "../macros/run.mac"},
             {"-v", ""},
+            {"-o", "output.csv"}
     };
 
     for (int i = 0; i < argc; ++i) {
@@ -39,12 +40,13 @@ int main(int argc, char **argv){
     const G4String preinit = args["-p"];
     const G4String visualization = args["-v"];
     const G4String run = args["-r"];
+    const G4String fout = args["-o"];
 
     // construct the defaulr run manager
     auto *pRunManager = new G4RunManager();
     pRunManager->SetUserInitialization(new BucketDetectorConstruction());
     pRunManager->SetUserInitialization(new BucketPhysicsList());
-    pRunManager->SetUserInitialization(new BucketActionInitialization());
+    pRunManager->SetUserInitialization(new BucketActionInitialization(fout));
 
     // construct UI manager and define preinit states
     auto *pUIManager = G4UImanager::GetUIpointer();

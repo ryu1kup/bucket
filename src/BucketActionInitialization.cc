@@ -3,12 +3,16 @@
 #include "BucketEventAction.hh"
 #include "BucketSteppingAction.hh"
 
-BucketActionInitialization::BucketActionInitialization(){}
+BucketActionInitialization::BucketActionInitialization(const G4String &fout){
+    m_pAnalysisManager = new BucketAnalysisManager(fout);
+}
 
-BucketActionInitialization::~BucketActionInitialization(){}
+BucketActionInitialization::~BucketActionInitialization(){
+    delete m_pAnalysisManager;
+}
 
 void BucketActionInitialization::Build() const {
     SetUserAction(new BucketPrimaryGeneratorAction());
-    SetUserAction(new BucketEventAction());
-    SetUserAction(new BucketSteppingAction());
+    SetUserAction(new BucketEventAction(m_pAnalysisManager));
+    SetUserAction(new BucketSteppingAction(m_pAnalysisManager));
 }
