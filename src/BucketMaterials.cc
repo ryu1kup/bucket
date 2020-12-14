@@ -23,7 +23,7 @@ void BucketMaterials::DefineMaterials() const {
     constexpr unsigned int nWater = 2;
     G4double dWaterEnergy[nWater] = {1 * eV, 5 * eV};
     G4double dWaterRefractiveIndex[nWater] = {1.33, 1.33};
-    G4double dWaterAbsorptionLength[nWater] = {100 * m, 100 * m};
+    G4double dWaterAbsorptionLength[nWater] = {m_dWaterAbslength, m_dWaterAbslength};
     G4double dWaterRayleighScatterLength[nWater] = {400 * m, 400 * m};
 
     auto *pWaterMPT = new G4MaterialPropertiesTable();
@@ -44,12 +44,12 @@ void BucketMaterials::DefineMaterials() const {
     G4double dEPTFEEnergy[nEPTFE] = {1 * eV, 5 * eV};
     G4double dEPTFEReflectivity[nEPTFE] = {0.0, 0.0};
     G4double dEPTFERefractiveIndex[nEPTFE] = {1.33, 1.33};
-    G4double dEPTFESpecularLobe[nEPTFE] = {0.0, 0.0};
-    G4double dEPTFESpecularSpike[nEPTFE] = {0.0, 0.0};
-    G4double dEPTFEBackscatter[nEPTFE] = {0.0, 0.0};
+    G4double dEPTFESpecularLobe[nEPTFE] = {m_dePTFESpecularLobeConstant, m_dePTFESpecularLobeConstant};
+    G4double dEPTFESpecularSpike[nEPTFE] = {m_dePTFESpecularSpikeConstant, m_dePTFESpecularSpikeConstant};
+    G4double dEPTFEBackscatter[nEPTFE] = {m_dePTFEBackscatteringConstant, m_dePTFEBackscatteringConstant};
     G4double dEPTFEEfficiency[nEPTFE] = {1.0, 1.0};
     G4double dEPTFEAbsorptionLength[nEPTFE] = {1.0 * mm, 1.0 * mm};
-    G4double dEPTFESurfaceTransmittance[nEPTFE] = {0.01, 0.01};
+    G4double dEPTFESurfaceTransmittance[nEPTFE] = {1 - m_dePTFEReflectivity, 1 - m_dePTFEReflectivity};
 
     G4MaterialPropertiesTable *pEPTFEMPT = new G4MaterialPropertiesTable();
 
@@ -84,7 +84,7 @@ void BucketMaterials::DefineMaterials() const {
 
     constexpr G4int nSS304L = 2;
     G4double dSS304LEnergy[nSS304L] = {1 * eV, 5 * eV};
-    G4double dSS304LReflectivity[nSS304L] = {0.90, 0.90};
+    G4double dSS304LReflectivity[nSS304L] = {m_dSteelReflectivity, m_dSteelReflectivity};
 
     auto *pSS304LMPT = new G4MaterialPropertiesTable();
     pSS304LMPT->AddProperty("REFLECTIVITY", dSS304LEnergy, dSS304LReflectivity, nSS304L);
@@ -101,4 +101,11 @@ void BucketMaterials::DefineMaterials() const {
     // FIXME currently just a black carbon case
     auto *PMTCaseMaterial = new G4Material("PMTCaseMaterial", 1.0 * g / cm3, 1, kStateSolid);
     PMTCaseMaterial->AddElement(C, 1);
+
+    G4cout << "water abslength ----------------------------------------------------------------- " << m_dWaterAbslength/m << G4endl;
+    G4cout << "eptfe reflectivity -------------------------------------------------------------- " << m_dePTFEReflectivity << G4endl;
+    G4cout << "eptfe spike --------------------------------------------------------------------- " << m_dePTFESpecularSpikeConstant << G4endl;
+    G4cout << "eptfe lobe ---------------------------------------------------------------------- " << m_dePTFESpecularLobeConstant << G4endl;
+    G4cout << "eptfe back ---------------------------------------------------------------------- " << m_dePTFEBackscatteringConstant << G4endl;
+    G4cout << "steel reflectivity -------------------------------------------------------------- " << m_dSteelReflectivity << G4endl;
 }

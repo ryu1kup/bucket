@@ -7,6 +7,8 @@
 #include <G4LogicalBorderSurface.hh>
 #include <vector>
 
+class BucketDetectorMessenger;
+
 class BucketDetectorConstruction : public G4VUserDetectorConstruction {
     public:
         BucketDetectorConstruction();
@@ -16,6 +18,13 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         G4VPhysicalVolume *Construct() override;
         void ConstructBucket();
         void ConstructLogicalBorderSurfaces();
+
+        void SetePTFEReflectivity(G4double value) {m_pMaterials->SetePTFEReflectivity(value);}
+        void SetePTFESpecularSpikeConstant(G4double value) {m_pMaterials->SetePTFESpecularSpikeConstant(value);}
+        void SetePTFESpecularLobeConstant(G4double value) {m_pMaterials->SetePTFESpecularLobeConstant(value);}
+        void SetePTFEBackscatteringConstant(G4double value) {m_pMaterials->SetePTFEBackscatteringConstant(value);}
+        void SetSteelReflectivity(G4double value) {m_pMaterials->SetSteelReflectivity(value);}
+        void SetWaterAbslength(G4double value) {m_pMaterials->SetWaterAbslength(value);}
 
     private:
         G4LogicalVolume *m_pWorldLogicalVolume;
@@ -62,4 +71,5 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         G4LogicalBorderSurface *m_pBorderWater2InjectorPatty;
 
         BucketMaterials *m_pMaterials;
+        BucketDetectorMessenger *m_pMessenger;
 };

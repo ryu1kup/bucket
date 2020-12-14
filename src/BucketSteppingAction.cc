@@ -25,36 +25,40 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
         }
     }
 
-    constexpr bool bPrintBoundaryProcess = false;
+    constexpr bool bPrintBoundaryProcess = true;
     if (bPrintBoundaryProcess
             && pStep->GetPostStepPoint()->GetStepStatus() == fGeomBoundary
             && (hPostVolume == "ReflectorSide" || hPostVolume == "ReflectorBottom" || hPostVolume == "ReflectorLid")
             && pStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
         status = boundary->GetStatus();
         if (status == Undefined) {
-            G4cout << "Undefined" << G4endl;
+            //G4cout << "Undefined" << G4endl;
         } else if (status == FresnelRefraction) {
-            G4cout << "FresnelRefraction" << G4endl;
+            //G4cout << "FresnelRefraction" << G4endl;
         } else if (status == FresnelReflection) {
-            G4cout << "FresnelReflection" << G4endl;
+            //G4cout << "FresnelReflection" << G4endl;
         } else if (status == TotalInternalReflection) {
-            G4cout << "TotalInternalReflection" << G4endl;
+            //G4cout << "TotalInternalReflection" << G4endl;
         } else if (status == LambertianReflection) {
-            G4cout << "LambertianReflection" << G4endl;
+            //G4cout << "LambertianReflection" << G4endl;
+            m_pAnalysisManager->IncrementNumLambertianReflection();
         } else if (status == LobeReflection) {
-            G4cout << "LobeReflection" << G4endl;
+            //G4cout << "LobeReflection" << G4endl;
+            m_pAnalysisManager->IncrementNumLobeReflection();
         } else if (status == SpikeReflection) {
-            G4cout << "SpikeReflection" << G4endl;
+            //G4cout << "SpikeReflection" << G4endl;
+            m_pAnalysisManager->IncrementNumSpikeReflection();
         } else if (status == BackScattering) {
-            G4cout << "BackScattering" << G4endl;
+            //G4cout << "BackScattering" << G4endl;
+            m_pAnalysisManager->IncrementNumBackscattering();
         } else if (status == Absorption) {
-            G4cout << "Absorption" << G4endl;
+            //G4cout << "Absorption" << G4endl;
         } else if (status == Detection) {
-            G4cout << "Detection" << G4endl;
+            //G4cout << "Detection" << G4endl;
         } else if (status == NotAtBoundary) {
-            G4cout << "NotAtBoundary" << G4endl;
+            //G4cout << "NotAtBoundary" << G4endl;
         } else {
-            G4cout << "Unexpected process: " << status << G4endl;
+            //G4cout << "Unexpected process: " << status << G4endl;
         }
     }
 

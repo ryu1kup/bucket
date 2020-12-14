@@ -1,5 +1,6 @@
 #include "BucketDetectorConstruction.hh"
 #include "BucketMaterials.hh"
+#include "BucketDetectorMessenger.hh"
 #include <G4Box.hh>
 #include <G4Tubs.hh>
 #include <G4Material.hh>
@@ -12,13 +13,15 @@
 #include <G4PhysicalConstants.hh>
 #include <G4VisAttributes.hh>
 
-BucketDetectorConstruction::BucketDetectorConstruction() : m_pMaterials(nullptr) {
+BucketDetectorConstruction::BucketDetectorConstruction() : m_pMaterials(nullptr), m_pMessenger(nullptr) {
     m_pMaterials = new BucketMaterials();
+    m_pMessenger = new BucketDetectorMessenger(this);
 }
 
 BucketDetectorConstruction::~BucketDetectorConstruction()
 {
     delete m_pMaterials;
+    delete m_pMessenger;
 }
 
 G4VPhysicalVolume* BucketDetectorConstruction::Construct() {
