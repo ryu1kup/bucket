@@ -45,8 +45,8 @@ class BucketAnalysisManager {
                 ofs << m_iNumReflection << ","
                     << m_iNumLambertian << ","
                     << m_iNumSpike << ","
+                    << m_iNumLobe << ","
                     << m_iNumBack << ","
-                    << m_iNumReflection << ","
                     << m_dTime / ns << G4endl;
             }
         }
