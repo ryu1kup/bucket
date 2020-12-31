@@ -69,6 +69,15 @@ void BucketMaterials::DefineMaterials() const {
     auto *Al = new G4Element("Al", "Al", 13, 26.982 * g / mole);
     Aluminium->AddElement(Al, 1);
 
+    constexpr G4int nAluminium = 2;
+    G4double dAluminiumEnergy[nAluminium] = {1 * eV, 5 * eV};
+    G4double dAluminiumReflectivity[nAluminium] = {0.9, 0.9};
+
+    auto* pAluminiumMPT = new G4MaterialPropertiesTable();
+
+    pAluminiumMPT->AddProperty("REFLECTIVITY", dAluminiumEnergy, dAluminiumReflectivity, nAluminium);
+    Aluminium->SetMaterialPropertiesTable(pAluminiumMPT);
+
     // SS304L
     auto *SS304L = new G4Material("SS304L", 8.00 * g / cm3, 5, kStateSolid);
     auto *Fe = new G4Element("Fe", "Fe", 26, 55.850 * g / mole);
@@ -97,10 +106,16 @@ void BucketMaterials::DefineMaterials() const {
     Glass->AddElement(Si, 1);
     Glass->AddElement(O, 2);
 
-    // PMT Case
-    // FIXME currently just a black carbon case
-    auto *PMTCaseMaterial = new G4Material("PMTCaseMaterial", 1.0 * g / cm3, 1, kStateSolid);
-    PMTCaseMaterial->AddElement(C, 1);
+    // Optical properties Glass                                                        
+    constexpr G4int iNbEntriesGlass = 7;                                                   
+    G4double pdGlassPhotonMomentum[iNbEntriesGlass] = {1.55*eV, 2.0664*eV, 2.48*eV, 2.755*eV, 3.1*eV, 4.133*eV, 6.2*eV};                                                                                 
+    // Cauchy dispersion law n = 1.472 + 3760 / wavelength**2                          
+    G4double pdGlassRefractiveIndex[iNbEntriesGlass] = {1.478, 1.482, 1.487, 1.491, 1.496, 1.51, 1.57};                                                                                 
+    G4double pdGlassAbsorbtionLength[iNbEntriesGlass] = {300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm};                                                                                 
+    G4MaterialPropertiesTable *pGlassPropertiesTable = new G4MaterialPropertiesTable();                                               
+    pGlassPropertiesTable->AddProperty("RINDEX", pdGlassPhotonMomentum, pdGlassRefractiveIndex, iNbEntriesGlass);      
+    pGlassPropertiesTable->AddProperty("ABSLENGTH", pdGlassPhotonMomentum, pdGlassAbsorbtionLength, iNbEntriesGlass);                              
+    Glass->SetMaterialPropertiesTable(pGlassPropertiesTable);
 
     G4cout << "water abslength ----------------------------------------------------------------- " << m_dWaterAbslength/m << G4endl;
     G4cout << "eptfe reflectivity -------------------------------------------------------------- " << m_dePTFEReflectivity << G4endl;
@@ -108,4 +123,4 @@ void BucketMaterials::DefineMaterials() const {
     G4cout << "eptfe lobe ---------------------------------------------------------------------- " << m_dePTFESpecularLobeConstant << G4endl;
     G4cout << "eptfe back ---------------------------------------------------------------------- " << m_dePTFEBackscatteringConstant << G4endl;
     G4cout << "steel reflectivity -------------------------------------------------------------- " << m_dSteelReflectivity << G4endl;
-}
+    }

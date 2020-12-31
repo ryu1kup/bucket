@@ -70,10 +70,7 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
     }
 
     // time that PMT detects a photon
-    if (hPreVolume == "Water" && hPostVolume == "PMT1") {
-        const G4double dTime = pStep->GetPostStepPoint()->GetGlobalTime();
-        m_pAnalysisManager->DetectPhoton(dTime);
-    } else if (hPreVolume == "Water" && hPostVolume == "PMT2") {
+    if (hPreVolume == "PMTWindow" && hPostVolume == "PMT") {
         const G4double dTime = pStep->GetPostStepPoint()->GetGlobalTime();
         m_pAnalysisManager->DetectPhoton(dTime);
     }
