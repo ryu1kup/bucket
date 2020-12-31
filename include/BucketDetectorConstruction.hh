@@ -17,6 +17,7 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
     public:
         G4VPhysicalVolume *Construct() override;
         void ConstructBucket();
+        void ConstructLaserInjector(G4double x, G4double y, G4double z);
         void ConstructLogicalBorderSurfaces();
 
         void SetePTFEReflectivity(G4double value) {m_pMaterials->SetePTFEReflectivity(value);}

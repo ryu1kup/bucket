@@ -3,6 +3,8 @@
 #include "BucketDetectorMessenger.hh"
 #include <G4Box.hh>
 #include <G4Tubs.hh>
+#include <G4Polyhedra.hh>
+#include <G4SubtractionSolid.hh>
 #include <G4Material.hh>
 #include <G4LogicalVolume.hh>
 #include <G4OpticalSurface.hh>
@@ -40,6 +42,7 @@ G4VPhysicalVolume* BucketDetectorConstruction::Construct() {
 
     // construct the bucket and including volumes
     ConstructBucket();
+    // ConstructLaserInjector(-50*mm, 0, 0);
 
     return m_pWorldPhysicalVolume;
 }
@@ -55,6 +58,10 @@ void BucketDetectorConstruction::ConstructBucket(){
 
     auto *SS304L = G4Material::GetMaterial("SS304L");
     m_pBucketSideLogicalVolume = new G4LogicalVolume(pBucketSideTubs, SS304L, "BucketSideLogicalVolume");
+    G4Colour hBucketColor(0.7, 0.7, 0.7);
+    auto* pBucketVisAtt = new G4VisAttributes(hBucketColor);
+    pBucketVisAtt->SetVisibility(true);
+    m_pBucketSideLogicalVolume->SetVisAttributes(pBucketVisAtt);
 
     m_pBucketSidePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), "BucketSide", m_pBucketSideLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
@@ -64,6 +71,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     auto *pBucketBottomTubs = new G4Tubs("BucketBottomTubs", 0, dBucketBottomOuterRadius, dBucketBottomHalfZ, 0, twopi);
 
     m_pBucketBottomLogicalVolume = new G4LogicalVolume(pBucketBottomTubs, SS304L, "BucketBottomLogicalVolume");
+    m_pBucketBottomLogicalVolume->SetVisAttributes(pBucketVisAtt);
 
     constexpr G4double dBucketBottomOffsetZ = -dBucketSideHalfZ - dBucketBottomHalfZ;
     m_pBucketBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dBucketBottomOffsetZ), "BucketBottom", m_pBucketBottomLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
@@ -74,8 +82,24 @@ void BucketDetectorConstruction::ConstructBucket(){
     constexpr G4double dBucketLidHalfZ = 0.5 * dBucketLidThickness;
     auto *pBucketLidTubs = new G4Tubs("BucketLidTubs", 0, dBucketLidOuterRadius, dBucketLidHalfZ, 0, twopi);
 
+    constexpr G4double dLaserX = -50 * mm;
+    constexpr G4double dBucketLidHole1OuterRadius = 17.5 * mm;
+    auto* pBucketLidHole1Tubs = new G4Tubs("BucketLidHole1Tubs", 0, dBucketLidHole1OuterRadius, dBucketLidThickness, 0, twopi);
+
+    auto* pBucketLidSolid1 = new G4SubtractionSolid("BucketLidSolid1", pBucketLidTubs, pBucketLidHole1Tubs, 0, G4ThreeVector(dLaserX, 0, 0));
+
+    constexpr G4double dPMTX = 50 * mm;
+    constexpr G4double dBucketLidHole2OuterRadius = 31.5 * mm;
+    auto* pBucketLidHole2Tubs = new G4Tubs("BucketLidHole2Tubs", 0, dBucketLidHole2OuterRadius, dBucketLidThickness, 0, twopi);
+
+    auto* pBucketLidSolid = new G4SubtractionSolid("BucketLidSolid", pBucketLidSolid1, pBucketLidHole2Tubs, 0, G4ThreeVector(dPMTX, 0, 0));
+
     auto *Aluminium = G4Material::GetMaterial("Aluminium");
-    m_pBucketLidLogicalVolume = new G4LogicalVolume(pBucketLidTubs, Aluminium, "BucketLidLogicalVolume");
+    m_pBucketLidLogicalVolume = new G4LogicalVolume(pBucketLidSolid, Aluminium, "BucketLidLogicalVolume");
+    G4Colour hBucketLidColor(0.8, 0.8, 0.8);
+    auto* pBucketLidVisAtt = new G4VisAttributes(hBucketLidColor);
+    pBucketLidVisAtt->SetVisibility(true);
+    m_pBucketLidLogicalVolume->SetVisAttributes(pBucketLidVisAtt);
 
     constexpr G4double dBucketLidOffsetZ = dBucketSideHalfZ + dBucketLidHalfZ;
     m_pBucketLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dBucketLidOffsetZ), "BucketLid", m_pBucketLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
@@ -95,22 +119,37 @@ void BucketDetectorConstruction::ConstructBucket(){
     // reflector bottom
     constexpr G4double dReflectorBottomOuterRadius = dReflectorSideInnerRadius;
     constexpr G4double dReflectorBottomHalfZ = 0.5 * dReflectorThickness;
-    auto *pReflectorBottomTubs = new G4Tubs("ReflectorBottomTubs", 0, dReflectorBottomOuterRadius, dReflectorBottomHalfZ, 0, twopi);
-
+    auto *pReflectorBottomTubs = new G4Tubs("ReflectorBottomTubs", 0, dReflectorBottomOuterRadius, dReflectorBottomHalfZ, 0, twopi); 
     m_pReflectorBottomLogicalVolume = new G4LogicalVolume(pReflectorBottomTubs, ePTFE, "ReflectorBottomLogicalVolume");
 
     constexpr G4double dReflectorBottomOffsetZ = -dReflectorSideHalfZ + 0.5 * dReflectorThickness;
     m_pReflectorBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dReflectorBottomOffsetZ), "ReflectorBottom", m_pReflectorBottomLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
-    // reflector ild
+    // reflector lid
     constexpr G4double dReflectorLidOuterRadius = dReflectorSideInnerRadius;
     constexpr G4double dReflectorLidHalfZ = 0.5 * dReflectorThickness;
     auto *pReflectorLidTubs = new G4Tubs("ReflectorLidTubs", 0, dReflectorLidOuterRadius, dReflectorLidHalfZ, 0, twopi);
 
-    m_pReflectorLidLogicalVolume = new G4LogicalVolume(pReflectorLidTubs, ePTFE, "ReflectorLidLogicalVolume");
+    constexpr G4double dReflectorLidHole1OuterRadius = dBucketLidHole1OuterRadius;
+    auto* pReflectorLidHole1Tubs = new G4Tubs("ReflectorLidHole1Tubs", 0, dReflectorLidHole1OuterRadius, dReflectorThickness, 0, twopi);
+
+    auto* pReflectorLidSolid1 = new G4SubtractionSolid("ReflectorLidSolid1", pReflectorLidTubs, pReflectorLidHole1Tubs, 0, G4ThreeVector(dLaserX, 0, 0));
+
+    constexpr G4double dReflectorLidHole2OuterRadius = dBucketLidHole2OuterRadius;
+    auto* pReflectorLidHole2Tubs = new G4Tubs("ReflectorLidHole2Tubs", 0, dReflectorLidHole2OuterRadius, dReflectorThickness, 0, twopi);
+
+    auto* pReflectorLidSolid = new G4SubtractionSolid("ReflectorLidSolid", pReflectorLidSolid1, pReflectorLidHole2Tubs, 0, G4ThreeVector(dPMTX, 0, 0));
+
+    m_pReflectorLidLogicalVolume = new G4LogicalVolume(pReflectorLidSolid, ePTFE, "ReflectorLidLogicalVolume");
 
     constexpr G4double dReflectorLidOffsetZ = dReflectorSideHalfZ - 0.5 * dReflectorThickness;
     m_pReflectorLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dReflectorLidOffsetZ), "ReflectorLid", m_pReflectorLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+
+    // XXX to be memberized
+    auto* pReflectorLidForHoleTubs = new G4Tubs("ReflectorLidForHoleTubs", 0, dReflectorLidHole1OuterRadius, dReflectorLidHalfZ, 0, twopi);
+    auto* pReflectorLidForHoleLogicalVolume = new G4LogicalVolume(pReflectorLidForHoleTubs, ePTFE, "ReflectorLidForHoleTubs");
+    constexpr G4double dReflectorLidForHoleOffsetZ = dBucketSideHalfZ + 2 * dBucketLidHalfZ - dReflectorLidHalfZ;
+    new G4PVPlacement(0, G4ThreeVector(dLaserX, 0, dReflectorLidForHoleOffsetZ), "ReflectorLidForHole", pReflectorLidForHoleLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // water
     constexpr G4double dWaterOuterRadius = dReflectorSideInnerRadius;
@@ -119,101 +158,15 @@ void BucketDetectorConstruction::ConstructBucket(){
 
     auto *Water = G4Material::GetMaterial("Water");
     m_pWaterLogicalVolume = new G4LogicalVolume(pWaterTubs, Water, "WaterLogicalVolume");
+    G4Colour hWaterColor(0, 0, 0.8);
+    auto* pWaterVisAtt = new G4VisAttributes(hWaterColor);
+    pWaterVisAtt->SetVisibility(false);
+    m_pWaterLogicalVolume->SetVisAttributes(pWaterVisAtt);
 
     m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // PMT
-    constexpr G4double dPMTCaseOuterRadius = 30 * mm;
-    constexpr G4double dPMTCaseInnerRadius = 26.5 * mm;
-    constexpr G4double dPMTCaseHalfZ = 0.5 * mm;
-    auto *pPMTCaseTubs = new G4Tubs("PMTCaseTubs", dPMTCaseInnerRadius, dPMTCaseOuterRadius, dPMTCaseHalfZ, 0, twopi);
-
-    auto *PMTCaseMaterial = G4Material::GetMaterial("PMTCaseMaterial");
-    m_pPMTCaseLogicalVolume = new G4LogicalVolume(pPMTCaseTubs, PMTCaseMaterial, "PMTCaseLogicalVolume");
-
-    constexpr G4double dPMT1CaseOffsetX = 50 * mm;
-    constexpr G4double dPMT1CaseOffsetZ = dWaterHalfZ - dPMTCaseHalfZ;
-    m_pPMT1CasePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMT1CaseOffsetX, 0, dPMT1CaseOffsetZ), "PMT1Case", m_pPMTCaseLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
-
-    // TODO: PMT Window
-    // constexpr G4double dPMTWindowThickness = 1 * mm;
-    // constexpr G4double dPMTWindowOuterRadius = dPMTCaseInnerRadius;
-    // constexpr G4double dPMTWindowHalfZ = 0.5 * dPMTWindowThickness;
-    // auto *pPMTWindowTubs = new G4Tubs("PMTWindowTubs", 0, dPMTWindowOuterRadius, dPMTWindowHalfZ, 0, twopi);
-
-    // auto *Glass = G4Material::GetMaterial("Glass");
-    // m_pPMTWindowLogicalVolume = new G4LogicalVolume(pPMTWindowTubs, Glass, "PMTWindowLogialVolume");
-
-    // constexpr G4double dPMT1WindowOffsetX = dPMT1CaseOffsetX;
-    // constexpr G4double dPMT1WindowOffsetZ = dPMT1CaseOffsetZ;
-    // m_pPMT1WindowLogicalVolume = new G4LogicalVolume(0, G4ThreeVector(dPMT1WindowOffsetX))
-
-    constexpr G4double dPMTOuterRadius = dPMTCaseInnerRadius;
-    constexpr G4double dPMTHalfZ = dPMTCaseHalfZ;
-    auto *pPMTTubs = new G4Tubs("PMTTubs", 0, dPMTOuterRadius, dPMTHalfZ, 0, twopi);
-
-    auto *Glass = G4Material::GetMaterial("Glass");
-    m_pPMTLogicalVolume = new G4LogicalVolume(pPMTTubs, Glass, "PMTLogicalVolume");
-
-    constexpr G4double dPMT1OffsetX = 50 * mm;
-    constexpr G4double dPMT1OffsetZ = dPMT1CaseOffsetZ;
-    m_pPMT1PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMT1OffsetX, 0, dPMT1OffsetZ), "PMT1", m_pPMTLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
-
-    // second PMT
-    constexpr G4bool construct_second_pmt = false;
-    if (construct_second_pmt) {
-        constexpr G4double dPMT2CaseOffsetX = dPMT1CaseOffsetX;
-        constexpr G4double dPMT2CaseOffsetY = 90 * mm;
-        constexpr G4double dPMT2CaseOffsetZ = dPMT1CaseOffsetZ;
-        m_pPMT2CasePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMT2CaseOffsetX, dPMT2CaseOffsetY, dPMT2CaseOffsetZ), "PMT2Case", m_pPMTCaseLogicalVolume, m_pWaterPhysicalVolume, false, 1, true);
-
-        constexpr G4double dPMT2OffsetX = dPMT1OffsetX; 
-        constexpr G4double dPMT2OffsetY = 90 * mm; 
-        constexpr G4double dPMT2OffsetZ = dPMT1OffsetZ;
-        m_pPMT2PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMT2OffsetX, dPMT2OffsetY, dPMT2OffsetZ), "PMT2", m_pPMTLogicalVolume, m_pWaterPhysicalVolume, false, 1, true);
-    }
-
-    // fiber case (just a tube)
-    constexpr G4double dFiberCaseOuterRadius = 1.5 * mm;
-    constexpr G4double dFiberCaseHalfZ = 5 * mm;
-    auto *pFiberCase = new G4Tubs("FiberCaseTubs", 0, dFiberCaseOuterRadius, dFiberCaseHalfZ, 0, twopi);
-
-    m_pFiberCaseLogicalVolume = new G4LogicalVolume(pFiberCase, SS304L, "FiberCaseLogicalVolume");
-
-    constexpr G4double dFiberCaseOffsetX = -50 * mm;
-    constexpr G4double dFiberCaseOffsetZ = dWaterHalfZ - dFiberCaseHalfZ;
-    m_pFiberCasePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dFiberCaseOffsetX, 0, dFiberCaseOffsetZ), "FiberCase", m_pFiberCaseLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
-
-    // laser injector
-    constexpr G4double dInjectorBun1OuterRadius = 18 * mm;
-    constexpr G4double dInjectorBun1HalfZ = 3 * mm;
-    auto *pInjectorBun1Tubs = new G4Tubs("InjectorBun1Tubs", 0, dInjectorBun1OuterRadius, dInjectorBun1HalfZ, 0, twopi);
-
-    m_pInjectorBun1LogicalVolume = new G4LogicalVolume(pInjectorBun1Tubs, SS304L, "InjectorBun1LogicalVolume");
-
-    constexpr G4double dInjectorBun1OffsetX = dFiberCaseOffsetX;
-    constexpr G4double dInjectorBun1OffsetZ = dFiberCaseOffsetZ - dFiberCaseHalfZ - dInjectorBun1HalfZ;
-    m_pInjectorBun1PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dInjectorBun1OffsetX, 0, dInjectorBun1OffsetZ), "InjectorBun1", m_pInjectorBun1LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
-    constexpr G4double dInjectorPattyOuterRadius = dInjectorBun1OuterRadius;
-    constexpr G4double dInjectorPattyHalfZ = 1.5 * mm;
-    auto *pInjectorPattyTubs = new G4Tubs("InjectorPattyTubs", 0, dInjectorPattyOuterRadius, dInjectorPattyHalfZ, 0, twopi);
-
-    m_pInjectorPattyLogicalVolume = new G4LogicalVolume(pInjectorPattyTubs, SS304L, "InjectorPattyLogicalVolume");
-
-    constexpr G4double dInjectorPattyOffsetX = dFiberCaseOffsetX;
-    constexpr G4double dInjectorPattyOffsetZ = dInjectorBun1OffsetZ - dInjectorBun1HalfZ - dInjectorPattyHalfZ;
-    m_pInjectorPattyPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dInjectorPattyOffsetX, 0 ,dInjectorPattyOffsetZ), "InjectorPatty", m_pInjectorPattyLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
-
-    constexpr G4double dInjectorBun2InnerRadius = 3 * mm;
-    constexpr G4double dInjectorBun2OuterRadius = dInjectorPattyOuterRadius;
-    constexpr G4double dInjectorBun2HalfZ = dInjectorBun1HalfZ;
-    auto *pInjectorBun2Tubs = new G4Tubs("InjectorBun2Tubs", dInjectorBun2InnerRadius, dInjectorBun2OuterRadius, dInjectorBun2HalfZ, 0, twopi);
-
-    m_pInjectorBun2LogicalVolume = new G4LogicalVolume(pInjectorBun2Tubs, SS304L, "InjectorBun2LogicalVolume");
-
-    constexpr G4double dInjectorBun2OffsetX = dInjectorPattyOffsetX;
-    constexpr G4double dInjectorBun2OffsetZ = dInjectorPattyOffsetZ - dInjectorPattyHalfZ - dInjectorBun2HalfZ;
-    m_pInjectorBun2PhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dInjectorBun2OffsetX, 0, dInjectorBun2OffsetZ), "InjectorBun2", m_pInjectorBun2LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+    // TODO implementation PMT window, photocathode and alminium case
 
     // define reflectivity
     // water -> the reflector
@@ -227,16 +180,190 @@ void BucketDetectorConstruction::ConstructBucket(){
     m_pBorderWater2ReflectorSide = new G4LogicalBorderSurface("ReflectorSideSurface", m_pWaterPhysicalVolume, m_pReflectorSidePhysicalVolume, pOpReflectorSurface);
     m_pBorderWater2ReflectorBottom = new G4LogicalBorderSurface("ReflectorBottomSurface", m_pWaterPhysicalVolume, m_pReflectorBottomPhysicalVolume, pOpReflectorSurface);
     m_pBorderWater2ReflectorLid = new G4LogicalBorderSurface("ReflectorLidSurface", m_pWaterPhysicalVolume, m_pReflectorLidPhysicalVolume, pOpReflectorSurface);
+}
 
-    // water -> the injector
-    auto *pOpInjectorSurface = new G4OpticalSurface("OpInjectorSurface");
-    pOpInjectorSurface->SetType(dielectric_dielectric);
-    pOpInjectorSurface->SetModel(unified);
-    pOpInjectorSurface->SetFinish(polishedfrontpainted);
-    pOpInjectorSurface->SetMaterialPropertiesTable(SS304L->GetMaterialPropertiesTable());
+void BucketDetectorConstruction::ConstructLaserInjector(G4double dLaserIrradiationX, G4double dLaserIrradiationY, G4double dLaserIrradiationZ){
+    // Construct the laser injector head and the steel fiber case
+    G4ThreeVector hLaserIradiationPoint(dLaserIrradiationX, dLaserIrradiationY, dLaserIrradiationZ);
 
-    m_pBorderWater2FiberCase = new G4LogicalBorderSurface("FiberCaseSurface", m_pWaterPhysicalVolume, m_pFiberCasePhysicalVolume, pOpInjectorSurface);
-    m_pBorderWater2InjectorBun1 = new G4LogicalBorderSurface("InjectorBun1Surface", m_pWaterPhysicalVolume, m_pInjectorBun1PhysicalVolume, pOpInjectorSurface);
-    m_pBorderWater2InjectorBun2 = new G4LogicalBorderSurface("InjectorBun2Surface", m_pWaterPhysicalVolume, m_pInjectorBun2PhysicalVolume, pOpInjectorSurface);
-    m_pBorderWater2InjectorPatty = new G4LogicalBorderSurface("InjectorPattySurface", m_pWaterPhysicalVolume, m_pInjectorPattyPhysicalVolume, pOpInjectorSurface);
+    // injector head
+    // front part
+    constexpr G4double dInjectorHeadOuterRadius = 17 * mm;
+    constexpr G4double dInjectorHeadInnerRadius = 3 * mm;
+    constexpr G4double dInjectorHeadFrontHalfZ = 3 * mm;
+    auto* pInjectorHeadFrontTubs = new G4Tubs("InjectorHeadFrontTubs", dInjectorHeadInnerRadius, dInjectorHeadOuterRadius, dInjectorHeadFrontHalfZ, 0, twopi);
+
+    auto* SS304L = G4Material::GetMaterial("SS304L");
+    auto* pInjectorHeadFrontLogicalVolume = new G4LogicalVolume(pInjectorHeadFrontTubs, SS304L, "InjectorHeadFrontLogicalVolume");
+
+    G4Colour hInjectorColor(1., 0.75, 0);
+    auto* pInjectorHeadVisAtt = new G4VisAttributes(hInjectorColor);
+    pInjectorHeadVisAtt->SetVisibility(true);
+    pInjectorHeadFrontLogicalVolume->SetVisAttributes(pInjectorHeadVisAtt);
+
+    constexpr G4double dInjectorHeadFrontOffsetZ = -dInjectorHeadFrontHalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorHeadFrontOffsetZ) + hLaserIradiationPoint, "InjectorHeadFront", pInjectorHeadFrontLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // middle part
+    constexpr G4double dInjectorHeadMiddleHalfZ = 1.5 * mm;
+    auto* pInjectorHeadMiddleTubs = new G4Tubs("InjectorHeadMiddleTubTubs", 0, dInjectorHeadOuterRadius, dInjectorHeadMiddleHalfZ, 0, twopi);
+
+    auto* pInjectorHeadMiddleLogicalVolume = new G4LogicalVolume(pInjectorHeadMiddleTubs, SS304L, "InjectorHeadMiddleLogicalVolume");
+
+    G4Colour hInjectorHeadMiddleColor(1, 0, 0);
+    auto* pInjectorHeadMiddleVisAtt = new G4VisAttributes(hInjectorHeadMiddleColor);
+    pInjectorHeadMiddleVisAtt->SetVisibility(true);
+    pInjectorHeadMiddleLogicalVolume->SetVisAttributes(pInjectorHeadMiddleVisAtt);
+
+    constexpr G4double dInjectorHeadMiddleOffsetZ = dInjectorHeadMiddleHalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorHeadMiddleOffsetZ) + hLaserIradiationPoint, "InjectorHeadMiddle", pInjectorHeadMiddleLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // bottom part
+    constexpr G4double dInjectorHeadBackHalfZ = 3 * mm;
+    auto* pInjectorHeadBackTubs = new G4Tubs("InjectorHeadBackTubTubs", 0, dInjectorHeadOuterRadius, dInjectorHeadBackHalfZ, 0, twopi);
+
+    auto* pInjectorHeadBackLogicalVolume = new G4LogicalVolume(pInjectorHeadBackTubs, SS304L, "InjectorHeadBackLogicalVolume");
+
+    pInjectorHeadBackLogicalVolume->SetVisAttributes(pInjectorHeadVisAtt);
+
+    constexpr G4double dInjectorHeadBackOffsetZ = 2 * dInjectorHeadMiddleHalfZ + dInjectorHeadBackHalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorHeadBackOffsetZ) + hLaserIradiationPoint, "InjectorHeadBack", pInjectorHeadBackLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // fiber case
+    // tube part 1
+    constexpr G4double dInjectorFiberCase1OuterRadius = 3 * mm;
+    constexpr G4double dInjectorFiberCase1HalfZ = 5.5 * mm;
+    auto* pInjectorFiberCase1Tubs = new G4Tubs("InjectorFiberCase1Tubs", 0, dInjectorFiberCase1OuterRadius, dInjectorFiberCase1HalfZ, 0, twopi);
+
+    auto* pInjectorFiberCase1LogicalVolume = new G4LogicalVolume(pInjectorFiberCase1Tubs, SS304L, "InjectorFiberCase1LogicalVolume");
+
+    auto* pInjectorFiberCaseVisAtt = new G4VisAttributes(hInjectorColor);
+    pInjectorFiberCaseVisAtt->SetVisibility(true);
+    pInjectorFiberCase1LogicalVolume->SetVisAttributes(pInjectorFiberCaseVisAtt);
+
+    constexpr G4double dInjectorFiberCase1OffsetZ = 2 * (dInjectorHeadMiddleHalfZ + dInjectorHeadBackHalfZ) + dInjectorFiberCase1HalfZ;;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorFiberCase1OffsetZ) + hLaserIradiationPoint, "InjectorFiberCase1", pInjectorFiberCase1LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // nut 1
+    constexpr G4double dInjectorFiberCaseNut1HalfZ = 2.5 * mm;
+    constexpr G4double dInjectorFiberCaseNut1OuterRadius = 5.5 * mm;
+    constexpr G4int iInjectorFiberCaseNut1NumZPlanes = 2;
+    constexpr G4int iInjectorFiberCaseNut1NumSide = 6;
+    constexpr G4double dInjectorFiberCaseNut1ZPlane[iInjectorFiberCaseNut1NumZPlanes] = {dInjectorFiberCaseNut1HalfZ, -dInjectorFiberCaseNut1HalfZ};
+    constexpr G4double dInjectorFiberCaseNut1RInner[iInjectorFiberCaseNut1NumSide] = {0, 0, 0, 0, 0, 0};
+    constexpr G4double dInjectorFiberCaseNut1ROuter[iInjectorFiberCaseNut1NumSide] = {dInjectorFiberCaseNut1OuterRadius, dInjectorFiberCaseNut1OuterRadius, dInjectorFiberCaseNut1OuterRadius, dInjectorFiberCaseNut1OuterRadius, dInjectorFiberCaseNut1OuterRadius, dInjectorFiberCaseNut1OuterRadius};
+    auto* pInjectorFiberCaseNut1Polyhedra = new G4Polyhedra("InjectorFiberCaseNut1Polyhedra", 0, twopi, iInjectorFiberCaseNut1NumSide, iInjectorFiberCaseNut1NumZPlanes,
+            dInjectorFiberCaseNut1ZPlane, dInjectorFiberCaseNut1RInner, dInjectorFiberCaseNut1ROuter);
+
+    auto* pInjectorFiberCaseNut1LogicalVolume = new G4LogicalVolume(pInjectorFiberCaseNut1Polyhedra, SS304L, "InjectorFiberCaseNut1LogicalVolume");
+    pInjectorFiberCaseNut1LogicalVolume->SetVisAttributes(pInjectorFiberCaseVisAtt);
+
+    constexpr G4double dInjectorFiberCaseNut1OffsetZ = 2 * (dInjectorHeadMiddleHalfZ + dInjectorHeadBackHalfZ + dInjectorFiberCase1HalfZ) + dInjectorFiberCaseNut1HalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorFiberCaseNut1OffsetZ) + hLaserIradiationPoint, "InjectorFiberCaseNut1", pInjectorFiberCaseNut1LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // tube 2
+    constexpr G4double dInjectorFiberCase2OuterRadius = dInjectorFiberCase1OuterRadius;
+    constexpr G4double dInjectorFiberCase2HalfZ = 1.5 * mm;
+    auto* pInjectorFiberCase2Tubs = new G4Tubs("InjectorFiberCase2Tubs", 0, dInjectorFiberCase2OuterRadius, dInjectorFiberCase2HalfZ, 0, twopi);
+
+    auto* pInjectorFiberCase2LogicalVolume = new G4LogicalVolume(pInjectorFiberCase2Tubs, SS304L, "InjectorFiberCase2LogicalVolume");
+
+    pInjectorFiberCase2LogicalVolume->SetVisAttributes(pInjectorFiberCaseVisAtt);
+
+    constexpr G4double dInjectorFiberCase2OffsetZ = dInjectorFiberCaseNut1OffsetZ + dInjectorFiberCaseNut1HalfZ + dInjectorFiberCase2HalfZ;;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorFiberCase2OffsetZ) + hLaserIradiationPoint, "InjectorFiberCase2", pInjectorFiberCase2LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // nut 2
+    constexpr G4double dInjectorFiberCaseNut2HalfZ = 4 * mm;
+    constexpr G4double dInjectorFiberCaseNut2OuterRadius = dInjectorFiberCaseNut1OuterRadius;
+    constexpr G4int iInjectorFiberCaseNut2NumZPlanes = 2;
+    constexpr G4int iInjectorFiberCaseNut2NumSide = 6;
+    constexpr G4double dInjectorFiberCaseNut2ZPlane[iInjectorFiberCaseNut2NumZPlanes] = {dInjectorFiberCaseNut2HalfZ, -dInjectorFiberCaseNut2HalfZ};
+    constexpr G4double dInjectorFiberCaseNut2RInner[iInjectorFiberCaseNut2NumSide] = {0, 0, 0, 0, 0, 0};
+    constexpr G4double dInjectorFiberCaseNut2ROuter[iInjectorFiberCaseNut2NumSide] = {dInjectorFiberCaseNut2OuterRadius, dInjectorFiberCaseNut2OuterRadius, dInjectorFiberCaseNut2OuterRadius, dInjectorFiberCaseNut2OuterRadius, dInjectorFiberCaseNut2OuterRadius, dInjectorFiberCaseNut2OuterRadius};
+    auto* pInjectorFiberCaseNut2Polyhedra = new G4Polyhedra("InjectorFiberCaseNut2Polyhedra", 0, twopi, iInjectorFiberCaseNut2NumSide, iInjectorFiberCaseNut2NumZPlanes,
+            dInjectorFiberCaseNut2ZPlane, dInjectorFiberCaseNut2RInner, dInjectorFiberCaseNut2ROuter);
+
+    auto* pInjectorFiberCaseNut2LogicalVolume = new G4LogicalVolume(pInjectorFiberCaseNut2Polyhedra, SS304L, "InjectorFiberCaseNut2LogicalVolume");
+    pInjectorFiberCaseNut2LogicalVolume->SetVisAttributes(pInjectorFiberCaseVisAtt);
+
+    constexpr G4double dInjectorFiberCaseNut2OffsetZ = dInjectorFiberCase2OffsetZ + dInjectorFiberCase2HalfZ + dInjectorFiberCaseNut2HalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorFiberCaseNut2OffsetZ) + hLaserIradiationPoint, "InjectorFiberCaseNut2", pInjectorFiberCaseNut2LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // nut 3
+    constexpr G4double dInjectorFiberCaseNut3OuterRadius = 5.5 * mm;
+    constexpr G4double dInjectorFiberCaseNut3HalfZ = 1.5 * mm;
+    auto* pInjectorFiberCaseNut3Tubs = new G4Tubs("InjectorFiberCaseNut3Tubs", 0, dInjectorFiberCaseNut3OuterRadius, dInjectorFiberCaseNut3HalfZ, 0, twopi);
+
+    auto* pInjectorFiberCaseNut3LogicalVolume = new G4LogicalVolume(pInjectorFiberCaseNut3Tubs, SS304L, "InjectorFiberCaseNut3LogicalVolume");
+
+    pInjectorFiberCaseNut3LogicalVolume->SetVisAttributes(pInjectorFiberCaseVisAtt);
+
+    constexpr G4double dInjectorFiberCaseNut3OffsetZ = dInjectorFiberCaseNut2OffsetZ + dInjectorFiberCaseNut2HalfZ + dInjectorFiberCaseNut3HalfZ;
+    new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorFiberCaseNut3OffsetZ) + hLaserIradiationPoint, "InjectorFiberCaseNut3", pInjectorFiberCaseNut3LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+
+    // fiber head nut
+    // front part
+    constexpr G4double dInjectorHeadNut1HalfZ = 2.5 * mm;
+    constexpr G4double dInjectorHeadNut1OuterRadius = 3.5 * mm;
+    auto* pInjectorHeadNut1Tubs = new G4Tubs("InjectorHeadTubs", 0, dInjectorHeadNut1OuterRadius, dInjectorHeadNut1HalfZ, 0, twopi);
+
+    constexpr G4double dInjectorHeadNut1InnerHalfZ = 1.0 * mm;
+    constexpr G4double dInjectorHeadNut1InnerRadius = 1.5 * mm;
+    constexpr G4int iInjectorHeadNut1NumZPlanes = 2;
+    constexpr G4int iInjectorHeadNut1NumSide = 6;
+    constexpr G4double dInjectorHeadNut1ZPlane[iInjectorHeadNut1NumZPlanes] = {dInjectorHeadNut1InnerHalfZ, -dInjectorHeadNut1InnerHalfZ};
+    constexpr G4double dInjectorHeadNut1RInner[iInjectorHeadNut1NumSide] = {0, 0, 0, 0, 0, 0};
+    constexpr G4double dInjectorHeadNut1ROuter[iInjectorHeadNut1NumSide] = {dInjectorHeadNut1InnerRadius, dInjectorHeadNut1InnerRadius, dInjectorHeadNut1InnerRadius, dInjectorHeadNut1InnerRadius, dInjectorHeadNut1InnerRadius, dInjectorHeadNut1InnerRadius};
+    auto* pInjectorHeadNut1Polyhedra = new G4Polyhedra("InjectorHeadNut1Polyhedra", 0, twopi, iInjectorHeadNut1NumSide, iInjectorHeadNut1NumZPlanes,
+            dInjectorHeadNut1ZPlane, dInjectorHeadNut1RInner, dInjectorHeadNut1ROuter);
+
+    auto* pInjectorHeadNut1Solid = new G4SubtractionSolid("InjectorHeadNut1Solid", pInjectorHeadNut1Tubs, pInjectorHeadNut1Polyhedra, 0, G4ThreeVector(0, 0, -dInjectorHeadNut1HalfZ + dInjectorHeadNut1InnerHalfZ));
+
+    auto* pInjectorHeadNut1LogicalVolume = new G4LogicalVolume(pInjectorHeadNut1Solid, SS304L, "InjectorHeadNut1LogicalVolume");
+
+    pInjectorHeadNut1LogicalVolume->SetVisAttributes(pInjectorHeadVisAtt);
+
+    constexpr G4double dInjectorHeadNut1OffsetZ = dInjectorHeadFrontOffsetZ - dInjectorHeadFrontHalfZ - dInjectorHeadNut1HalfZ;
+    G4ThreeVector hInjectorHeadNut1Position(dInjectorHeadOuterRadius - dInjectorHeadNut1OuterRadius, 0, dInjectorHeadNut1OffsetZ);
+    for (int i = 0; i < 6; ++i) {
+        new G4PVPlacement(0, hInjectorHeadNut1Position.rotateZ(60*deg) + hLaserIradiationPoint, "InjectorHeadNut1" + std::to_string(i), pInjectorHeadNut1LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+    }
+
+    // back part
+    constexpr G4double dInjectorHeadNut2HalfZ = 2 * mm;
+    constexpr G4double dInjectorHeadNut2OuterRadius = dInjectorHeadNut1OuterRadius;
+    constexpr G4int iInjectorHeadNut2NumZPlanes = 2;
+    constexpr G4int iInjectorHeadNut2NumSide = 6;
+    constexpr G4double dInjectorHeadNut2ZPlane[iInjectorHeadNut2NumZPlanes] = {dInjectorHeadNut2HalfZ, -dInjectorHeadNut2HalfZ};
+    constexpr G4double dInjectorHeadNut2RInner[iInjectorHeadNut2NumSide] = {0, 0, 0, 0, 0, 0};
+    constexpr G4double dInjectorHeadNut2ROuter[iInjectorHeadNut2NumSide] = {dInjectorHeadNut2OuterRadius, dInjectorHeadNut2OuterRadius, dInjectorHeadNut2OuterRadius, dInjectorHeadNut2OuterRadius, dInjectorHeadNut2OuterRadius, dInjectorHeadNut2OuterRadius};
+    auto* pInjectorHeadNut2Polyhedra = new G4Polyhedra("InjectorHeadNut2Polyhedra", 0, twopi, iInjectorHeadNut2NumSide, iInjectorHeadNut2NumZPlanes,
+            dInjectorHeadNut2ZPlane, dInjectorHeadNut2RInner, dInjectorHeadNut2ROuter);
+
+    auto* pInjectorHeadNut2LogicalVolume = new G4LogicalVolume(pInjectorHeadNut2Polyhedra, SS304L, "jectorHeadNut2LogicalVolume");
+
+    pInjectorHeadNut2LogicalVolume->SetVisAttributes(pInjectorHeadVisAtt);
+
+    constexpr G4double dInjectorHeadNut2OffsetZ = dInjectorHeadBackOffsetZ + dInjectorHeadBackHalfZ + dInjectorHeadNut2HalfZ;
+    G4ThreeVector hInjectorHeadNut2Position(dInjectorHeadOuterRadius - dInjectorHeadNut2OuterRadius * 2 / sqrt(3), 0, dInjectorHeadNut2OffsetZ);
+    for (int i = 0; i < 6; ++i) {
+        new G4PVPlacement(0, hInjectorHeadNut2Position.rotateZ(60*deg) + hLaserIradiationPoint, "InjectorHeadNut2" + std::to_string(i), pInjectorHeadNut2LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+    }
+
+    // back part 2
+    // protruding screw
+    constexpr G4double dInjectorHeadNut3HalfZ = 1.5 * mm;
+    constexpr G4double dInjectorHeadNut3OuterRadius = 1.5 * mm;
+    auto* pInjectorHeadNut3Tubs = new G4Tubs("InjectorHeadTubs", 0, dInjectorHeadNut3OuterRadius, dInjectorHeadNut3HalfZ, 0, twopi);
+
+    auto* pInjectorHeadNut3LogicalVolume = new G4LogicalVolume(pInjectorHeadNut3Tubs, SS304L, "InjectorHeadNut3LogicalVolume");
+
+    pInjectorHeadNut3LogicalVolume->SetVisAttributes(pInjectorHeadVisAtt);
+
+    constexpr G4double dInjectorHeadNut3OffsetZ = dInjectorHeadNut2OffsetZ + dInjectorHeadNut2HalfZ + dInjectorHeadNut3HalfZ;
+    G4ThreeVector hInjectorHeadNut3Position(dInjectorHeadOuterRadius - dInjectorHeadNut2OuterRadius * 2 / sqrt(3), 0, dInjectorHeadNut3OffsetZ);
+    for (int i = 0; i < 6; ++i) {
+        new G4PVPlacement(0, hInjectorHeadNut3Position.rotateZ(60*deg) + hLaserIradiationPoint, "InjectorHeadNut3" + std::to_string(i), pInjectorHeadNut3LogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
+    }
 }
