@@ -52,7 +52,7 @@ G4VPhysicalVolume* BucketDetectorConstruction::Construct() {
 void BucketDetectorConstruction::ConstructBucket(){
     // construct volumes
     // bucket side
-    constexpr G4double dBucketThickness = 10 * mm;
+    constexpr G4double dBucketThickness = 2 * mm;
     constexpr G4double dBucketSideInnerRadius = 150 * mm;
     constexpr G4double dBucketSideOuterRadius = dBucketSideInnerRadius + dBucketThickness;
     constexpr G4double dBucketSideHalfZ = 150 * mm;
