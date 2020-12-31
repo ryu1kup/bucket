@@ -3,11 +3,24 @@
 #include <globals.hh>
 #include <G4SystemOfUnits.hh>
 #include <fstream>
+#include <iostream>
 
 class BucketAnalysisManager {
     public:
         BucketAnalysisManager(const G4String &fout);
         ~BucketAnalysisManager();
+
+        inline void InitializeRun(){
+            std::cout << "************************************" << std::endl;
+            std::cout << "*                                  *" << std::endl;
+            std::cout << "*     welcome to the Bucket MC     *" << std::endl;
+            std::cout << "*                                  *" << std::endl;
+            std::cout << "************************************" << std::endl;
+        }
+
+        inline void TerminateRun(){
+            std::cout << "The Bucket MC has been finished without clash." << std::endl;
+        }
 
         inline void InitializeEvent(){
             m_dTime = -1;
@@ -47,7 +60,7 @@ class BucketAnalysisManager {
                     << m_iNumSpike << ","
                     << m_iNumLobe << ","
                     << m_iNumBack << ","
-                    << m_dTime / ns << G4endl;
+                    << m_dTime / ns << std::endl;
             }
         }
 

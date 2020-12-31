@@ -1,4 +1,5 @@
 #include "BucketActionInitialization.hh"
+#include "BucketRunAction.hh"
 #include "BucketPrimaryGeneratorAction.hh"
 #include "BucketEventAction.hh"
 #include "BucketSteppingAction.hh"
@@ -12,6 +13,7 @@ BucketActionInitialization::~BucketActionInitialization(){
 }
 
 void BucketActionInitialization::Build() const {
+    SetUserAction(new BucketRunAction(m_pAnalysisManager));
     SetUserAction(new BucketPrimaryGeneratorAction());
     SetUserAction(new BucketEventAction(m_pAnalysisManager));
     SetUserAction(new BucketSteppingAction(m_pAnalysisManager));
