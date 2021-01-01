@@ -12,19 +12,11 @@ class BucketAnalysisManager {
         ~BucketAnalysisManager();
 
         inline void InitializeRun(){
-            std::cout << "************************************" << std::endl;
-            std::cout << "*                                  *" << std::endl;
-            std::cout << "*     welcome to the Bucket MC     *" << std::endl;
-            std::cout << "*                                  *" << std::endl;
-            std::cout << "************************************" << std::endl;
-
             m_pTree->Branch("nref", &m_iNumReflection, "nref/I");
             m_pTree->Branch("time", &m_dTime, "time/D");
         }
 
         inline void TerminateRun(){
-            std::cout << "The Bucket MC has been finished without clash." << std::endl;
-
             m_pTree->Write();
             m_pFile->Close();
         }
