@@ -44,7 +44,7 @@ G4VPhysicalVolume* BucketDetectorConstruction::Construct() {
 
     // construct the bucket and including volumes
     ConstructBucket();
-    ConstructLaserInjector(-50*mm, 0, 111.5*mm);
+    ConstructLaserInjector(-50*mm, 0, 112*mm);
 
     return m_pWorldPhysicalVolume;
 }
@@ -78,34 +78,6 @@ void BucketDetectorConstruction::ConstructBucket(){
     constexpr G4double dBucketBottomOffsetZ = -dBucketSideHalfZ - dBucketBottomHalfZ;
     m_pBucketBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dBucketBottomOffsetZ), "BucketBottom", m_pBucketBottomLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
-    // bucket lid
-    constexpr G4double dBucketLidThickness = 2 * mm;
-    constexpr G4double dBucketLidOuterRadius = dBucketSideOuterRadius;
-    constexpr G4double dBucketLidHalfZ = 0.5 * dBucketLidThickness;
-    auto *pBucketLidTubs = new G4Tubs("BucketLidTubs", 0, dBucketLidOuterRadius, dBucketLidHalfZ, 0, twopi);
-
-    constexpr G4double dLaserX = -50 * mm;
-    constexpr G4double dBucketLidHole1OuterRadius = 17.5 * mm;
-    auto* pBucketLidHole1Tubs = new G4Tubs("BucketLidHole1Tubs", 0, dBucketLidHole1OuterRadius, dBucketLidThickness, 0, twopi);
-
-    auto* pBucketLidSolid1 = new G4SubtractionSolid("BucketLidSolid1", pBucketLidTubs, pBucketLidHole1Tubs, 0, G4ThreeVector(dLaserX, 0, 0));
-
-    constexpr G4double dPMTX = 50 * mm;
-    constexpr G4double dBucketLidHole2OuterRadius = 31.5 * mm;
-    auto* pBucketLidHole2Tubs = new G4Tubs("BucketLidHole2Tubs", 0, dBucketLidHole2OuterRadius, dBucketLidThickness, 0, twopi);
-
-    auto* pBucketLidSolid = new G4SubtractionSolid("BucketLidSolid", pBucketLidSolid1, pBucketLidHole2Tubs, 0, G4ThreeVector(dPMTX, 0, 0));
-
-    auto *Aluminium = G4Material::GetMaterial("Aluminium");
-    m_pBucketLidLogicalVolume = new G4LogicalVolume(pBucketLidSolid, Aluminium, "BucketLidLogicalVolume");
-    G4Colour hBucketLidColor(0.8, 0.8, 0.8);
-    auto* pBucketLidVisAtt = new G4VisAttributes(hBucketLidColor);
-    pBucketLidVisAtt->SetVisibility(true);
-    m_pBucketLidLogicalVolume->SetVisAttributes(pBucketLidVisAtt);
-
-    constexpr G4double dBucketLidOffsetZ = dBucketSideHalfZ + dBucketLidHalfZ;
-    m_pBucketLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dBucketLidOffsetZ), "BucketLid", m_pBucketLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
-
     // reflector side
     constexpr G4double dReflectorThickness = 1.5 * mm;
     constexpr G4double dReflectorSideOuterRadius = dBucketSideInnerRadius;
@@ -127,6 +99,42 @@ void BucketDetectorConstruction::ConstructBucket(){
     constexpr G4double dReflectorBottomOffsetZ = -dReflectorSideHalfZ + 0.5 * dReflectorThickness;
     m_pReflectorBottomPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dReflectorBottomOffsetZ), "ReflectorBottom", m_pReflectorBottomLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
+    // bucket lid
+    constexpr G4double dBucketLid1Thickness = 2 * mm;
+    constexpr G4double dBucketLid1OuterRadius = dBucketSideOuterRadius;
+    constexpr G4double dBucketLid1HalfZ = 0.5 * dBucketLid1Thickness;
+    auto *pBucketLid1Tubs = new G4Tubs("BucketLid1Tubs", 0, dBucketLid1OuterRadius, dBucketLid1HalfZ, 0, twopi);
+
+    constexpr G4double dBucketLid2Thickness = 3 * mm;
+    constexpr G4double dBucketLid2OuterRadius = dBucketSideInnerRadius - dReflectorThickness;
+    constexpr G4double dBucketLid2HalfZ = 0.5 * dBucketLid2Thickness;
+    auto* pBucketLid2Tubs = new G4Tubs("BucketLid2Tubs", 0, dBucketLid2OuterRadius, dBucketLid2HalfZ, 0, twopi);
+
+    auto* pBucketLidSolid1 = new G4UnionSolid("BucketLidSolid1", pBucketLid1Tubs, pBucketLid2Tubs, 0, G4ThreeVector(0, 0, -dBucketLid1HalfZ - dBucketLid2HalfZ));
+
+    constexpr G4double dLaserX = -50 * mm;
+    constexpr G4double dBucketLidHole1OuterRadius = 17.5 * mm;
+    constexpr G4double dBucketLidThickness = dBucketLid1Thickness + dBucketLid2Thickness;
+    auto* pBucketLidHole1Tubs = new G4Tubs("BucketLidHole1Tubs", 0, dBucketLidHole1OuterRadius, dBucketLidThickness, 0, twopi);
+
+    auto* pBucketLidSolid2 = new G4SubtractionSolid("BucketLidSolid2", pBucketLidSolid1, pBucketLidHole1Tubs, 0, G4ThreeVector(dLaserX, 0, -dBucketLid2HalfZ));
+
+    constexpr G4double dPMTX = 50 * mm;
+    constexpr G4double dBucketLidHole2OuterRadius = 31.5 * mm;
+    auto* pBucketLidHole2Tubs = new G4Tubs("BucketLidHole2Tubs", 0, dBucketLidHole2OuterRadius, dBucketLidThickness, 0, twopi);
+
+    auto* pBucketLidSolid = new G4SubtractionSolid("BucketLidSolid", pBucketLidSolid2, pBucketLidHole2Tubs, 0, G4ThreeVector(dPMTX, 0, -dBucketLid2HalfZ));
+
+    auto *Aluminium = G4Material::GetMaterial("Aluminium");
+    m_pBucketLidLogicalVolume = new G4LogicalVolume(pBucketLidSolid, Aluminium, "BucketLidLogicalVolume");
+    G4Colour hBucketLidColor(0.8, 0.8, 0.8);
+    auto* pBucketLidVisAtt = new G4VisAttributes(hBucketLidColor);
+    pBucketLidVisAtt->SetVisibility(true);
+    m_pBucketLidLogicalVolume->SetVisAttributes(pBucketLidVisAtt);
+
+    constexpr G4double dBucketLidOffsetZ = dBucketSideHalfZ + dBucketLid1HalfZ;
+    m_pBucketLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dBucketLidOffsetZ), "BucketLid", m_pBucketLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+
     // reflector lid
     constexpr G4double dReflectorLidOuterRadius = dReflectorSideInnerRadius;
     constexpr G4double dReflectorLidHalfZ = 0.5 * dReflectorThickness;
@@ -144,21 +152,20 @@ void BucketDetectorConstruction::ConstructBucket(){
 
     m_pReflectorLidLogicalVolume = new G4LogicalVolume(pReflectorLidSolid, ePTFE, "ReflectorLidLogicalVolume");
 
-    constexpr G4double dReflectorLidOffsetZ = dReflectorSideHalfZ - 0.5 * dReflectorThickness;
+    constexpr G4double dReflectorLidOffsetZ = dReflectorSideHalfZ - dBucketLid2Thickness - 0.5 * dReflectorThickness;
     m_pReflectorLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dReflectorLidOffsetZ), "ReflectorLid", m_pReflectorLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
-    // XXX to be memberized
     auto* pReflectorLidForHoleTubs = new G4Tubs("ReflectorLidForHoleTubs", 0, dReflectorLidHole1OuterRadius, dReflectorLidHalfZ, 0, twopi);
     auto* pReflectorLidForHoleLogicalVolume = new G4LogicalVolume(pReflectorLidForHoleTubs, ePTFE, "ReflectorLidForHoleTubs");
-    constexpr G4double dReflectorLidForHoleOffsetZ = dBucketSideHalfZ + 2 * dBucketLidHalfZ - dReflectorLidHalfZ;
+    constexpr G4double dReflectorLidForHoleOffsetZ = dBucketSideHalfZ + dBucketLid1Thickness - dReflectorLidHalfZ;
     m_pReflectorLidForHolePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dLaserX, 0, dReflectorLidForHoleOffsetZ), "ReflectorLidForHole", pReflectorLidForHoleLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // water
-    constexpr G4double dWater1HalfZ = dReflectorSideHalfZ - dReflectorThickness;
+    constexpr G4double dWater1HalfZ = 0.5 * (dReflectorSideHalfZ * 2 - dBucketLid2Thickness - dReflectorThickness * 2);
     constexpr G4double dWater1OuterRadius = dReflectorSideInnerRadius;
     auto *pWater1Tubs = new G4Tubs("Water1Tubs", 0, dWater1OuterRadius, dWater1HalfZ, 0, twopi);
 
-    constexpr G4double dWater2HalfZ = dBucketLidHalfZ;
+    constexpr G4double dWater2HalfZ = dBucketLid1HalfZ + dBucketLid2HalfZ;
     constexpr G4double dWater2OuterRadius = dBucketLidHole1OuterRadius;
     auto *pWater2Tubs = new G4Tubs("Water2Tubs", 0, dWater2OuterRadius, dWater2HalfZ, 0, twopi);
 
@@ -168,17 +175,17 @@ void BucketDetectorConstruction::ConstructBucket(){
     m_pWaterLogicalVolume = new G4LogicalVolume(pWaterSolid, Water, "WaterLogicalVolume");
     G4Colour hWaterColor(0, 0, 0.8);
     auto* pWaterVisAtt = new G4VisAttributes(hWaterColor);
-    pWaterVisAtt->SetVisibility(false);
+    pWaterVisAtt->SetVisibility(true);
     m_pWaterLogicalVolume->SetVisAttributes(pWaterVisAtt);
 
-    m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -dBucketLid2HalfZ), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
-    G4cout << (dWater1HalfZ + dWater2HalfZ * 2 - 39 * mm) / mm << G4endl;
+    G4cout << dBucketSideHalfZ + dBucketLid1Thickness - dReflectorThickness - 40 * mm + dBucketLid2HalfZ << G4endl;
 
     // PMT
     // Aluminium cover including the PMT case
     constexpr G4double dPMTAluminiumCoverHalfZ = 50 * mm;
-    constexpr G4double dPMTAluminiumCoverInnerRadius = 30 * mm;
+    constexpr G4double dPMTAluminiumCoverInnerRadius = 25 * mm;
     constexpr G4double dPMTAluminiumCoverOuterRadius = 31.5 * mm;
     auto* pPMTAluminiumCoverTubs = new G4Tubs("PMTAluminiumCoverTubs", dPMTAluminiumCoverInnerRadius, dPMTAluminiumCoverOuterRadius, dPMTAluminiumCoverHalfZ, 0, twopi);
 
@@ -189,7 +196,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     pPMTAluminiumCoverLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
 
     constexpr G4double dPMTOffsetX = dPMTX;
-    constexpr G4double dPMTOffsetZ = dBucketSideHalfZ - dReflectorThickness + dPMTAluminiumCoverHalfZ;
+    constexpr G4double dPMTOffsetZ = dBucketSideHalfZ - -dBucketLid2Thickness - dReflectorThickness + dPMTAluminiumCoverHalfZ;
     new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTOffsetZ), "PMTAluminiumCover", pPMTAluminiumCoverLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Aluminium lid
@@ -215,7 +222,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     pPMTWindowVisAtt->SetVisibility(true);
     pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
 
-    constexpr G4double dPMTWindowOffsetZ = dBucketSideHalfZ - dReflectorThickness + dPMTWindowHalfZ;
+    constexpr G4double dPMTWindowOffsetZ = dBucketSideHalfZ - dBucketLid2Thickness - dReflectorThickness + dPMTWindowHalfZ;
     new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTWindowOffsetZ), "PMTWindow", pPMTWindowLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Photocathode
@@ -266,7 +273,7 @@ void BucketDetectorConstruction::ConstructLaserInjector(G4double dLaserIrradiati
     // front part
     constexpr G4double dInjectorHeadOuterRadius = 17 * mm;
     constexpr G4double dInjectorHeadInnerRadius = 3 * mm;
-    constexpr G4double dInjectorHeadFrontHalfZ = 3 * mm;
+    constexpr G4double dInjectorHeadFrontHalfZ = 3.5 * mm;
     auto* pInjectorHeadFrontTubs = new G4Tubs("InjectorHeadFrontTubs", dInjectorHeadInnerRadius, dInjectorHeadOuterRadius, dInjectorHeadFrontHalfZ, 0, twopi);
 
     auto* SS304L = G4Material::GetMaterial("SS304L");
@@ -293,7 +300,7 @@ void BucketDetectorConstruction::ConstructLaserInjector(G4double dLaserIrradiati
     m_pInjectorHeadMiddlePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dInjectorHeadMiddleOffsetZ) + hLaserIradiationPoint, "InjectorHeadMiddle", m_pInjectorHeadMiddleLogicalVolume, m_pWaterPhysicalVolume, false, 0, true);
 
     // bottom part
-    constexpr G4double dInjectorHeadBackHalfZ = 3 * mm;
+    constexpr G4double dInjectorHeadBackHalfZ = 3.5 * mm;
     auto* pInjectorHeadBackTubs = new G4Tubs("InjectorHeadBackTubTubs", 0, dInjectorHeadOuterRadius, dInjectorHeadBackHalfZ, 0, twopi);
 
     m_pInjectorHeadBackLogicalVolume = new G4LogicalVolume(pInjectorHeadBackTubs, SS304L, "InjectorHeadBackLogicalVolume");
