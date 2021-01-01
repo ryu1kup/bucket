@@ -27,6 +27,11 @@ BucketDetectorMessenger::BucketDetectorMessenger(BucketDetectorConstruction *pDe
     m_pSetePTFEBackscatteringConstant->SetDefaultValue(0.0);
     m_pSetePTFEBackscatteringConstant->AvailableForStates(G4State_PreInit);
 
+    m_pSetePTFESigmaAlpha = new G4UIcmdWithADouble("/bucket/detector/eptfe_sigmaalpha", this);
+    m_pSetePTFEBackscatteringConstant->SetGuidance("Set ePTFE SigmaAlpha");
+    m_pSetePTFEBackscatteringConstant->SetDefaultValue(0.1);
+    m_pSetePTFEBackscatteringConstant->AvailableForStates(G4State_PreInit);
+
     m_pSetSteelReflectivity = new G4UIcmdWithADouble("/bucket/detector/steel_reflectivity", this);
     m_pSetSteelReflectivity->SetGuidance("Set Steel Reflectivity");
     m_pSetSteelReflectivity->SetDefaultValue(0.90);
@@ -44,6 +49,7 @@ BucketDetectorMessenger::~BucketDetectorMessenger(){
     delete m_pSetePTFESpecularSpikeConstant;
     delete m_pSetePTFESpecularLobeConstant;
     delete m_pSetePTFEBackscatteringConstant;
+    delete m_pSetePTFESigmaAlpha;
     delete m_pSetSteelReflectivity;
     delete m_pSetWaterAbslength;
     delete m_pDirectory;
@@ -58,6 +64,8 @@ void BucketDetectorMessenger::SetNewValue(G4UIcommand *pCommand, G4String hNewVa
         m_pDetector->SetePTFESpecularLobeConstant(m_pSetePTFESpecularLobeConstant->GetNewDoubleValue(hNewValue));
     } else if (pCommand == m_pSetePTFEBackscatteringConstant) {
         m_pDetector->SetePTFEBackscatteringConstant(m_pSetePTFEBackscatteringConstant->GetNewDoubleValue(hNewValue));
+    } else if (pCommand == m_pSetePTFESigmaAlpha) {
+        m_pDetector->SetePTFESigmaAlpha(m_pSetePTFESigmaAlpha->GetNewDoubleValue(hNewValue));
     } else if (pCommand == m_pSetSteelReflectivity) {
         m_pDetector->SetSteelReflectivity(m_pSetSteelReflectivity->GetNewDoubleValue(hNewValue));
     } else if (pCommand == m_pSetWaterAbslength) {

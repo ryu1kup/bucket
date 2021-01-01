@@ -3,5 +3,6 @@
 /bucket/detector/eptfe_specularspike  0.0
 /bucket/detector/eptfe_specularlobe   0.0
 /bucket/detector/eptfe_backscattering 0.0
+/bucket/detector/eptfe_sigmaalpha     0.1
 /bucket/detector/steel_reflectivity   0.9
 /bucket/detector/water_abslength      100 m

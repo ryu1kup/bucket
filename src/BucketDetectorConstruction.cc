@@ -175,12 +175,10 @@ void BucketDetectorConstruction::ConstructBucket(){
     m_pWaterLogicalVolume = new G4LogicalVolume(pWaterSolid, Water, "WaterLogicalVolume");
     G4Colour hWaterColor(0, 0, 0.8);
     auto* pWaterVisAtt = new G4VisAttributes(hWaterColor);
-    pWaterVisAtt->SetVisibility(true);
+    pWaterVisAtt->SetVisibility(false);
     m_pWaterLogicalVolume->SetVisAttributes(pWaterVisAtt);
 
     m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -dBucketLid2HalfZ), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
-
-    G4cout << dBucketSideHalfZ + dBucketLid1Thickness - dReflectorThickness - 40 * mm + dBucketLid2HalfZ << G4endl;
 
     // PMT
     // Aluminium cover including the PMT case
@@ -247,7 +245,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     pOpReflectorSurface->SetType(dielectric_dielectric);
     pOpReflectorSurface->SetModel(unified);
     pOpReflectorSurface->SetFinish(groundbackpainted);
-    pOpReflectorSurface->SetSigmaAlpha(0.1);
+    pOpReflectorSurface->SetSigmaAlpha(m_pMaterials->ePTFESigmaAlpha());
     pOpReflectorSurface->SetMaterialPropertiesTable(ePTFE->GetMaterialPropertiesTable());
 
     m_pBorderWater2ReflectorSide = new G4LogicalBorderSurface("ReflectorSideSurface", m_pWaterPhysicalVolume, m_pReflectorSidePhysicalVolume, pOpReflectorSurface);

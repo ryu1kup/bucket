@@ -24,6 +24,7 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         void SetePTFESpecularSpikeConstant(G4double value) {m_pMaterials->SetePTFESpecularSpikeConstant(value);}
         void SetePTFESpecularLobeConstant(G4double value) {m_pMaterials->SetePTFESpecularLobeConstant(value);}
         void SetePTFEBackscatteringConstant(G4double value) {m_pMaterials->SetePTFEBackscatteringConstant(value);}
+        void SetePTFESigmaAlpha(G4double value) {m_pMaterials->SetePTFESigmaAlpha(value);}
         void SetSteelReflectivity(G4double value) {m_pMaterials->SetSteelReflectivity(value);}
         void SetWaterAbslength(G4double value) {m_pMaterials->SetWaterAbslength(value);}
 

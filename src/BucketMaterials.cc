@@ -117,10 +117,11 @@ void BucketMaterials::DefineMaterials() const {
     pGlassPropertiesTable->AddProperty("ABSLENGTH", pdGlassPhotonMomentum, pdGlassAbsorbtionLength, iNbEntriesGlass);                              
     Glass->SetMaterialPropertiesTable(pGlassPropertiesTable);
 
-    G4cout << "water abslength ----------------------------------------------------------------- " << m_dWaterAbslength/m << G4endl;
-    G4cout << "eptfe reflectivity -------------------------------------------------------------- " << m_dePTFEReflectivity << G4endl;
-    G4cout << "eptfe spike --------------------------------------------------------------------- " << m_dePTFESpecularSpikeConstant << G4endl;
-    G4cout << "eptfe lobe ---------------------------------------------------------------------- " << m_dePTFESpecularLobeConstant << G4endl;
-    G4cout << "eptfe back ---------------------------------------------------------------------- " << m_dePTFEBackscatteringConstant << G4endl;
-    G4cout << "steel reflectivity -------------------------------------------------------------- " << m_dSteelReflectivity << G4endl;
-    }
+    G4cout << "eptfe reflectivity -----------------------> " << m_dePTFEReflectivity << G4endl;
+    G4cout << "eptfe spike ------------------------------> " << m_dePTFESpecularSpikeConstant << G4endl;
+    G4cout << "eptfe lobe -------------------------------> " << m_dePTFESpecularLobeConstant << G4endl;
+    G4cout << "eptfe back -------------------------------> " << m_dePTFEBackscatteringConstant << G4endl;
+    G4cout << "eptfe sigma alpha ------------------------> " << m_dePTFESigmaAlpha << G4endl;
+    G4cout << "steel reflectivity -----------------------> " << m_dSteelReflectivity << G4endl;
+    G4cout << "water abslength --------------------------> " << m_dWaterAbslength/m << "m" << G4endl;
+}

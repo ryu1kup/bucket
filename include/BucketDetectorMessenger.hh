@@ -22,6 +22,7 @@ class BucketDetectorMessenger : public G4UImessenger {
         G4UIcmdWithADouble *m_pSetePTFESpecularSpikeConstant;
         G4UIcmdWithADouble *m_pSetePTFESpecularLobeConstant;
         G4UIcmdWithADouble *m_pSetePTFEBackscatteringConstant;
+        G4UIcmdWithADouble *m_pSetePTFESigmaAlpha;
         G4UIcmdWithADouble *m_pSetSteelReflectivity;
         G4UIcmdWithADoubleAndUnit *m_pSetWaterAbslength;
 };
