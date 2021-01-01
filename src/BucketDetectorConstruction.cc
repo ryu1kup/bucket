@@ -187,26 +187,26 @@ void BucketDetectorConstruction::ConstructBucket(){
     constexpr G4double dPMTAluminiumCoverOuterRadius = 31.5 * mm;
     auto* pPMTAluminiumCoverTubs = new G4Tubs("PMTAluminiumCoverTubs", dPMTAluminiumCoverInnerRadius, dPMTAluminiumCoverOuterRadius, dPMTAluminiumCoverHalfZ, 0, twopi);
 
-    auto* pPMTAluminiumCoverLogicalVolume = new G4LogicalVolume(pPMTAluminiumCoverTubs, Aluminium, "PMTAluminiumCoverLogicalVolume");
+    m_pPMTAluminiumCoverLogicalVolume = new G4LogicalVolume(pPMTAluminiumCoverTubs, Aluminium, "PMTAluminiumCoverLogicalVolume");
     G4Colour hPMTAluminiumCoverColor(0.8, 0.8, 0.8);
     auto* pPMTAluminiumVisAtt = new G4VisAttributes(hPMTAluminiumCoverColor);
     pPMTAluminiumVisAtt->SetVisibility(true);
-    pPMTAluminiumCoverLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
+    m_pPMTAluminiumCoverLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
 
     constexpr G4double dPMTOffsetX = dPMTX;
     constexpr G4double dPMTOffsetZ = dBucketSideHalfZ - -dBucketLid2Thickness - dReflectorThickness + dPMTAluminiumCoverHalfZ;
-    new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTOffsetZ), "PMTAluminiumCover", pPMTAluminiumCoverLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    m_pPMTAluminiumCoverPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTOffsetZ), "PMTAluminiumCover", m_pPMTAluminiumCoverLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Aluminium lid
     constexpr G4double dPMTAluminiumLidHalfZ = 1 * mm;
     constexpr G4double dPMTAluminiumLidOuterRadius = dPMTAluminiumCoverInnerRadius;
     auto* pPMTAluminiumLidTubs = new G4Tubs("PMTAluminiumLidTubs", 0, dPMTAluminiumLidOuterRadius, dPMTAluminiumLidHalfZ, 0, twopi);
 
-    auto* pPMTAluminiumLidLogicalVolume = new G4LogicalVolume(pPMTAluminiumLidTubs, Aluminium, "PMTAluminiumLidLogicalVolume");
-    pPMTAluminiumLidLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
+    m_pPMTAluminiumLidLogicalVolume = new G4LogicalVolume(pPMTAluminiumLidTubs, Aluminium, "PMTAluminiumLidLogicalVolume");
+    m_pPMTAluminiumLidLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
 
     constexpr G4double dPMTAluminiumLidOffsetZ = dPMTOffsetZ + dPMTAluminiumCoverHalfZ - dPMTAluminiumLidHalfZ;
-    auto* pPMTAluminiumCoverPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTAluminiumLidOffsetZ), "PMTAluminiumLid", pPMTAluminiumLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    m_pPMTAluminiumLidPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTAluminiumLidOffsetZ), "PMTAluminiumLid", m_pPMTAluminiumLidLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Window
     constexpr G4double dPMTWindowHalfZ = 0.5 * mm;
@@ -214,14 +214,14 @@ void BucketDetectorConstruction::ConstructBucket(){
     auto* pPMTWindowTubs = new G4Tubs("PMTWindowTubs", 0, dPMTWindowOuterRadius, dPMTWindowHalfZ, 0, twopi);
 
     auto* Glass = G4Material::GetMaterial("Glass");
-    auto* pPMTWindowLogicalVolume = new G4LogicalVolume(pPMTWindowTubs, Glass, "PMTWindowLogicalVolume");
+    m_pPMTWindowLogicalVolume = new G4LogicalVolume(pPMTWindowTubs, Glass, "PMTWindowLogicalVolume");
     G4Colour hPMTWindowColor(1, 0.75, 0);
     auto* pPMTWindowVisAtt = new G4VisAttributes(hPMTWindowColor);
     pPMTWindowVisAtt->SetVisibility(true);
-    pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
+    m_pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
 
     constexpr G4double dPMTWindowOffsetZ = dBucketSideHalfZ - dBucketLid2Thickness - dReflectorThickness + dPMTWindowHalfZ;
-    new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTWindowOffsetZ), "PMTWindow", pPMTWindowLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    m_pPMTWindowPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTWindowOffsetZ), "PMTWindow", m_pPMTWindowLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Photocathode
     // its name is just "PMT"
@@ -230,14 +230,14 @@ void BucketDetectorConstruction::ConstructBucket(){
     auto* pPMTPhotocathodeTubs = new G4Tubs("PMTPhotocathodeTubs", 0, dPMTPhotocathodeOuterRadius, dPMTPhotocathodeHalfZ, 0, twopi);
 
     auto* Bialkali = G4Material::GetMaterial("Air"); // FIXME define Bialkali
-    auto* pPMTPhotocathodeLogicalVolume = new G4LogicalVolume(pPMTPhotocathodeTubs, Bialkali, "PMTPhotocathodeLogicalVolume");
+    m_pPMTPhotocathodeLogicalVolume = new G4LogicalVolume(pPMTPhotocathodeTubs, Bialkali, "PMTPhotocathodeLogicalVolume");
     G4Colour hPMTWPhotocathodeColor(1, 0, 0);
     auto* pPMTPhotocathodeVisAtt = new G4VisAttributes(hPMTWPhotocathodeColor);
     pPMTPhotocathodeVisAtt->SetVisibility(true);
-    pPMTPhotocathodeLogicalVolume->SetVisAttributes(pPMTPhotocathodeVisAtt);
+    m_pPMTPhotocathodeLogicalVolume->SetVisAttributes(pPMTPhotocathodeVisAtt);
 
     constexpr G4double dPMTPhotocathodeOffsetZ = dPMTWindowOffsetZ + dPMTWindowHalfZ + dPMTPhotocathodeHalfZ;
-    new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTPhotocathodeOffsetZ), "PMT", pPMTPhotocathodeLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    m_pPMTPhotocathodePhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTPhotocathodeOffsetZ), "PMT", m_pPMTPhotocathodeLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // define reflectivity
     // water -> the reflector
@@ -260,7 +260,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     pOpPMTAluminiumCoverSurface->SetFinish(polished);
     pOpPMTAluminiumCoverSurface->SetMaterialPropertiesTable(Aluminium->GetMaterialPropertiesTable());
 
-    m_pBorderWater2PMTAluminiumCover= new G4LogicalBorderSurface("AluminiumCoverSurface", m_pWaterPhysicalVolume, pPMTAluminiumCoverPhysicalVolume, pOpPMTAluminiumCoverSurface);
+    m_pBorderWater2PMTAluminiumCover= new G4LogicalBorderSurface("AluminiumCoverSurface", m_pWaterPhysicalVolume, m_pPMTAluminiumCoverPhysicalVolume, pOpPMTAluminiumCoverSurface);
 }
 
 void BucketDetectorConstruction::ConstructLaserInjector(G4double dLaserIrradiationX, G4double dLaserIrradiationY, G4double dLaserIrradiationZ){

@@ -49,6 +49,10 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         G4LogicalVolume *m_pInjectorHeadNut1LogicalVolume;
         G4LogicalVolume *m_pInjectorHeadNut2LogicalVolume;
         G4LogicalVolume *m_pInjectorHeadNut3LogicalVolume;
+        G4LogicalVolume *m_pPMTAluminiumCoverLogicalVolume;
+        G4LogicalVolume *m_pPMTAluminiumLidLogicalVolume;
+        G4LogicalVolume *m_pPMTWindowLogicalVolume;
+        G4LogicalVolume *m_pPMTPhotocathodeLogicalVolume;
 
         G4VPhysicalVolume *m_pWorldPhysicalVolume;
         G4VPhysicalVolume *m_pBucketSidePhysicalVolume;
@@ -70,6 +74,10 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         G4VPhysicalVolume *m_pInjectorHeadNut1PhysicalVolume[6];
         G4VPhysicalVolume *m_pInjectorHeadNut2PhysicalVolume[6];
         G4VPhysicalVolume *m_pInjectorHeadNut3PhysicalVolume[6];
+        G4VPhysicalVolume *m_pPMTAluminiumCoverPhysicalVolume;
+        G4VPhysicalVolume *m_pPMTAluminiumLidPhysicalVolume;
+        G4VPhysicalVolume *m_pPMTWindowPhysicalVolume;
+        G4VPhysicalVolume *m_pPMTPhotocathodePhysicalVolume;
 
         G4LogicalBorderSurface *m_pBorderWater2ReflectorSide;
         G4LogicalBorderSurface *m_pBorderWater2ReflectorBottom;
