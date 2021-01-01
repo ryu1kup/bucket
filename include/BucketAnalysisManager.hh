@@ -2,8 +2,9 @@
 
 #include <globals.hh>
 #include <G4SystemOfUnits.hh>
-#include <fstream>
 #include <iostream>
+#include <TFile.h>
+#include <TTree.h>
 
 class BucketAnalysisManager {
     public:
@@ -16,10 +17,16 @@ class BucketAnalysisManager {
             std::cout << "*     welcome to the Bucket MC     *" << std::endl;
             std::cout << "*                                  *" << std::endl;
             std::cout << "************************************" << std::endl;
+
+            m_pTree->Branch("nref", &m_iNumReflection, "nref/I");
+            m_pTree->Branch("time", &m_dTime, "time/D");
         }
 
         inline void TerminateRun(){
             std::cout << "The Bucket MC has been finished without clash." << std::endl;
+
+            m_pTree->Write();
+            m_pFile->Close();
         }
 
         inline void InitializeEvent(){
@@ -55,12 +62,7 @@ class BucketAnalysisManager {
 
         inline void Write(){
             if (m_bIsDetected) {
-                ofs << m_iNumReflection << ","
-                    << m_iNumLambertian << ","
-                    << m_iNumSpike << ","
-                    << m_iNumLobe << ","
-                    << m_iNumBack << ","
-                    << m_dTime / ns << std::endl;
+                m_pTree->Fill();
             }
         }
 
@@ -72,5 +74,7 @@ class BucketAnalysisManager {
         G4int m_iNumBack;
         G4double m_dTime;
         G4bool m_bIsDetected;
-        std::ofstream ofs;
+
+        TFile* m_pFile;
+        TTree* m_pTree;
 };

@@ -13,7 +13,7 @@ std::map<std::string, std::string> parse_arguments(int argc, char **argv) {
         {"-p", "../macros/preinit.mac"},
             {"-r", "../macros/run.mac"},
             {"-v", ""},
-            {"-o", "output.csv"}
+            {"-o", "output.root"}
     };
 
     for (int i = 0; i < argc; ++i) {
