@@ -31,9 +31,15 @@ $ ../bin/bucket -p ../macros/preinit.mac -v ../macros/visualization.mac -r ../ma
 
 ## Output
 
-A csv file is created.
+A ROOT file containing a TTree is created.
 
-| header | unit | description |
-| ------ | ---- | ----------- |
-| nref   |      | # of reflection |
-| time   | ns   | photon detection time |
+| branch   | unit | description                    |
+| -------- | ---- | ------------------------------ |
+| nref     |      | # of all reflection            |
+| ndiffuse |      | # of Lambertian reflection     |
+| nspike   |      | # of spike reflection          |
+| nlobe    |      | # of lobe reflection           |
+| nback    |      | # of back scattering           |
+| ntotal   |      | # of total internal reflection |
+| nfresnel |      | # of Fresnel reflection        |
+| time     | ns   | photon detection time          |
