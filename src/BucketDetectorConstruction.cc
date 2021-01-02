@@ -178,7 +178,8 @@ void BucketDetectorConstruction::ConstructBucket(){
     pWaterVisAtt->SetVisibility(false);
     m_pWaterLogicalVolume->SetVisAttributes(pWaterVisAtt);
 
-    m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, -dBucketLid2HalfZ), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
+    constexpr G4double dWaterOffsetZ = -dBucketLid2HalfZ;
+    m_pWaterPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(0, 0, dWaterOffsetZ), "Water", m_pWaterLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // PMT
     // Aluminium cover including the PMT case
@@ -194,7 +195,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     m_pPMTAluminiumCoverLogicalVolume->SetVisAttributes(pPMTAluminiumVisAtt);
 
     constexpr G4double dPMTOffsetX = dPMTX;
-    constexpr G4double dPMTOffsetZ = dBucketSideHalfZ - -dBucketLid2Thickness - dReflectorThickness + dPMTAluminiumCoverHalfZ;
+    constexpr G4double dPMTOffsetZ = dWaterOffsetZ + dWater1HalfZ + dPMTAluminiumCoverHalfZ;
     m_pPMTAluminiumCoverPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTOffsetZ), "PMTAluminiumCover", m_pPMTAluminiumCoverLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Aluminium lid
@@ -220,7 +221,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     pPMTWindowVisAtt->SetVisibility(true);
     m_pPMTWindowLogicalVolume->SetVisAttributes(pPMTWindowVisAtt);
 
-    constexpr G4double dPMTWindowOffsetZ = dBucketSideHalfZ - dBucketLid2Thickness - dReflectorThickness + dPMTWindowHalfZ;
+    constexpr G4double dPMTWindowOffsetZ = dWaterOffsetZ + dWater1HalfZ + dPMTWindowHalfZ;
     m_pPMTWindowPhysicalVolume = new G4PVPlacement(0, G4ThreeVector(dPMTOffsetX, 0, dPMTWindowOffsetZ), "PMTWindow", m_pPMTWindowLogicalVolume, m_pWorldPhysicalVolume, false, 0, true);
 
     // Photocathode
