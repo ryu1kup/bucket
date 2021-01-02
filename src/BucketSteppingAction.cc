@@ -28,7 +28,6 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
     constexpr bool bPrintBoundaryProcess = true;
     if (bPrintBoundaryProcess
             && pStep->GetPostStepPoint()->GetStepStatus() == fGeomBoundary
-            && (hPostVolume == "ReflectorSide" || hPostVolume == "ReflectorBottom" || hPostVolume == "ReflectorLid")
             && pStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
         status = boundary->GetStatus();
         if (status == Undefined) {
@@ -36,8 +35,10 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
         } else if (status == FresnelRefraction) {
             //G4cout << "FresnelRefraction" << G4endl;
         } else if (status == FresnelReflection) {
+            m_pAnalysisManager->IncrementNumFresnelReflection();
             //G4cout << "FresnelReflection" << G4endl;
         } else if (status == TotalInternalReflection) {
+            m_pAnalysisManager->IncrementNumTotalInternalReflection();
             //G4cout << "TotalInternalReflection" << G4endl;
         } else if (status == LambertianReflection) {
             //G4cout << "LambertianReflection" << G4endl;
@@ -60,13 +61,6 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
         } else {
             //G4cout << "Unexpected process: " << status << G4endl;
         }
-    }
-
-    // increment # of reflections
-    if ((hPreVolume == "ReflectorSide" && hPostVolume == "Water")
-            || (hPreVolume == "ReflectorBottom" && hPostVolume == "Water")
-            || (hPreVolume == "ReflectorLid" && hPostVolume == "Water")) {
-        m_pAnalysisManager->IncrementNumReflection();
     }
 
     // time that PMT detects a photon

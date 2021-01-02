@@ -13,6 +13,12 @@ class BucketAnalysisManager {
 
         inline void InitializeRun(){
             m_pTree->Branch("nref", &m_iNumReflection, "nref/I");
+            m_pTree->Branch("ndiffuse", &m_iNumLambertian, "ndiffuse/I");
+            m_pTree->Branch("nspike", &m_iNumSpike, "nspike/I");
+            m_pTree->Branch("nlobe", &m_iNumLobe, "nlobe/I");
+            m_pTree->Branch("nback", &m_iNumBack, "nback/I");
+            m_pTree->Branch("nfresnel", &m_iNumFresnelReflection, "nfresnel/I");
+            m_pTree->Branch("ntotal", &m_iNumTotalInternalReflection, "ntotal/I");
             m_pTree->Branch("time", &m_dTime, "time/D");
         }
 
@@ -28,23 +34,37 @@ class BucketAnalysisManager {
             m_iNumSpike = 0;
             m_iNumLobe = 0;
             m_iNumBack = 0;
+            m_iNumFresnelReflection = 0;
             m_bIsDetected = false;
         }
 
         inline void IncrementNumReflection(){
             ++m_iNumReflection;
+            ++m_iNumReflection;
         }
         inline void IncrementNumLambertianReflection(){
             ++m_iNumLambertian;
+            ++m_iNumReflection;
         }
         inline void IncrementNumSpikeReflection(){
             ++m_iNumSpike;
+            ++m_iNumReflection;
         }
         inline void IncrementNumLobeReflection(){
             ++m_iNumLobe;
+            ++m_iNumReflection;
         }
         inline void IncrementNumBackscattering(){
             ++m_iNumBack;
+            ++m_iNumReflection;
+        }
+        inline void IncrementNumFresnelReflection(){
+            ++m_iNumFresnelReflection;
+            ++m_iNumReflection;
+        }
+        inline void IncrementNumTotalInternalReflection(){
+            ++m_iNumTotalInternalReflection;
+            ++m_iNumReflection;
         }
 
         inline void DetectPhoton(const G4double dTime){
@@ -64,6 +84,8 @@ class BucketAnalysisManager {
         G4int m_iNumSpike;
         G4int m_iNumLobe;
         G4int m_iNumBack;
+        G4int m_iNumFresnelReflection;
+        G4int m_iNumTotalInternalReflection;
         G4double m_dTime;
         G4bool m_bIsDetected;
 
