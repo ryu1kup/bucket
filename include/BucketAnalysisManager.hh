@@ -34,6 +34,7 @@ class BucketAnalysisManager {
             m_iNumSpike = 0;
             m_iNumLobe = 0;
             m_iNumBack = 0;
+            m_iNumTotalInternalReflection = 0;
             m_iNumFresnelReflection = 0;
             m_bIsDetected = false;
         }
