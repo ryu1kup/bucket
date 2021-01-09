@@ -9,7 +9,7 @@ void BucketEventAction::BeginOfEventAction(const G4Event *pEvent){
     m_pAnalysisManager->InitializeEvent();
 
     const auto iEventID = pEvent->GetEventID();
-    if (iEventID % 10000 == 0) {
+    if (iEventID % 9216 == 0) {
         G4cout << "Event: " << iEventID << G4endl;
     }
 }
