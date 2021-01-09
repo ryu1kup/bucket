@@ -30,10 +30,12 @@ void BucketMaterials::DefineMaterials() const {
     pWaterMPT->AddProperty("RINDEX", dWaterEnergy, dWaterRefractiveIndex, nWater);
     pWaterMPT->AddProperty("ABSLENGTH", dWaterEnergy, dWaterAbsorptionLength, nWater);
     pWaterMPT->AddProperty("RAYLEIGH", dWaterEnergy, dWaterRayleighScatterLength, nWater);
+    G4cout << "--------------------> Water MPT" << G4endl;
+    pWaterMPT->DumpTable();
 
     Water->SetMaterialPropertiesTable(pWaterMPT);
 
-    // ePTFE 
+    // ePTFE
     auto *ePTFE = new G4Material("ePTFE", 0.7 * g / cm3, 2, kStateSolid);
     auto *C = new G4Element("C", "C", 6., 12.011 * g / mole);
     auto *F = new G4Element("F", "F", 9., 18.998 * g / mole);
@@ -42,14 +44,14 @@ void BucketMaterials::DefineMaterials() const {
 
     constexpr G4int nEPTFE = 2;
     G4double dEPTFEEnergy[nEPTFE] = {1 * eV, 5 * eV};
-    G4double dEPTFEReflectivity[nEPTFE] = {0.0, 0.0};
+    G4double dEPTFEReflectivity[nEPTFE] = {m_dePTFEReflectivity, m_dePTFEReflectivity};
     G4double dEPTFERefractiveIndex[nEPTFE] = {1.33, 1.33};
     G4double dEPTFESpecularLobe[nEPTFE] = {m_dePTFESpecularLobeConstant, m_dePTFESpecularLobeConstant};
     G4double dEPTFESpecularSpike[nEPTFE] = {m_dePTFESpecularSpikeConstant, m_dePTFESpecularSpikeConstant};
     G4double dEPTFEBackscatter[nEPTFE] = {m_dePTFEBackscatteringConstant, m_dePTFEBackscatteringConstant};
     G4double dEPTFEEfficiency[nEPTFE] = {1.0, 1.0};
     G4double dEPTFEAbsorptionLength[nEPTFE] = {1.0 * mm, 1.0 * mm};
-    G4double dEPTFESurfaceTransmittance[nEPTFE] = {1 - m_dePTFEReflectivity, 1 - m_dePTFEReflectivity};
+    G4double dEPTFESurfaceTransmittance[nEPTFE] = {1e-20, 1e-20};
 
     G4MaterialPropertiesTable *pEPTFEMPT = new G4MaterialPropertiesTable();
 
@@ -61,6 +63,8 @@ void BucketMaterials::DefineMaterials() const {
     pEPTFEMPT->AddProperty("BACKSCATTERCONSTANT", dEPTFEEnergy, dEPTFEBackscatter, nEPTFE);
     pEPTFEMPT->AddProperty("EFFICIENCY", dEPTFEEnergy, dEPTFEEfficiency, nEPTFE);
     pEPTFEMPT->AddProperty("TRANSMITTANCE", dEPTFEEnergy, dEPTFESurfaceTransmittance, nEPTFE);
+    G4cout << "--------------------> ePTFE MPT" << G4endl;
+    pEPTFEMPT->DumpTable();
 
     ePTFE->SetMaterialPropertiesTable(pEPTFEMPT);
 
@@ -76,6 +80,8 @@ void BucketMaterials::DefineMaterials() const {
     auto* pAluminiumMPT = new G4MaterialPropertiesTable();
 
     pAluminiumMPT->AddProperty("REFLECTIVITY", dAluminiumEnergy, dAluminiumReflectivity, nAluminium);
+    G4cout << "--------------------> Aluminium MPT" << G4endl;
+    pAluminiumMPT->DumpTable();
     Aluminium->SetMaterialPropertiesTable(pAluminiumMPT);
 
     // SS304L
@@ -97,6 +103,8 @@ void BucketMaterials::DefineMaterials() const {
 
     auto *pSS304LMPT = new G4MaterialPropertiesTable();
     pSS304LMPT->AddProperty("REFLECTIVITY", dSS304LEnergy, dSS304LReflectivity, nSS304L);
+    G4cout << "--------------------> SS304L MPT" << G4endl;
+    pSS304LMPT->DumpTable();
 
     SS304L->SetMaterialPropertiesTable(pSS304LMPT);
 
@@ -106,22 +114,18 @@ void BucketMaterials::DefineMaterials() const {
     Glass->AddElement(Si, 1);
     Glass->AddElement(O, 2);
 
-    // Optical properties Glass                                                        
-    constexpr G4int iNbEntriesGlass = 7;                                                   
-    G4double pdGlassPhotonMomentum[iNbEntriesGlass] = {1.55*eV, 2.0664*eV, 2.48*eV, 2.755*eV, 3.1*eV, 4.133*eV, 6.2*eV};                                                                                 
-    // Cauchy dispersion law n = 1.472 + 3760 / wavelength**2                          
-    G4double pdGlassRefractiveIndex[iNbEntriesGlass] = {1.478, 1.482, 1.487, 1.491, 1.496, 1.51, 1.57};                                                                                 
-    G4double pdGlassAbsorbtionLength[iNbEntriesGlass] = {300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm};                                                                                 
-    G4MaterialPropertiesTable *pGlassPropertiesTable = new G4MaterialPropertiesTable();                                               
-    pGlassPropertiesTable->AddProperty("RINDEX", pdGlassPhotonMomentum, pdGlassRefractiveIndex, iNbEntriesGlass);      
-    pGlassPropertiesTable->AddProperty("ABSLENGTH", pdGlassPhotonMomentum, pdGlassAbsorbtionLength, iNbEntriesGlass);                              
-    Glass->SetMaterialPropertiesTable(pGlassPropertiesTable);
+    // Optical properties Glass
+    constexpr G4int nGlass = 7;
+    G4double pdGlassEnergy[nGlass] = {1.55*eV, 2.0664*eV, 2.48*eV, 2.755*eV, 3.1*eV, 4.133*eV, 6.2*eV};
+    // Cauchy dispersion law n = 1.472 + 3760 / wavelength**2
+    G4double pdGlassRefractiveIndex[nGlass] = {1.478, 1.482, 1.487, 1.491, 1.496, 1.51, 1.57};
+    G4double pdGlassAbsorbtionLength[nGlass] = {300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm};
 
-    G4cout << "eptfe reflectivity -----------------------> " << m_dePTFEReflectivity << G4endl;
-    G4cout << "eptfe spike ------------------------------> " << m_dePTFESpecularSpikeConstant << G4endl;
-    G4cout << "eptfe lobe -------------------------------> " << m_dePTFESpecularLobeConstant << G4endl;
-    G4cout << "eptfe back -------------------------------> " << m_dePTFEBackscatteringConstant << G4endl;
-    G4cout << "eptfe sigma alpha ------------------------> " << m_dePTFESigmaAlpha << G4endl;
-    G4cout << "steel reflectivity -----------------------> " << m_dSteelReflectivity << G4endl;
-    G4cout << "water abslength --------------------------> " << m_dWaterAbslength/m << "m" << G4endl;
+    G4MaterialPropertiesTable *pGlassMPT = new G4MaterialPropertiesTable();
+    pGlassMPT->AddProperty("RINDEX", pdGlassEnergy, pdGlassRefractiveIndex, nGlass);
+    pGlassMPT->AddProperty("ABSLENGTH", pdGlassEnergy, pdGlassAbsorbtionLength, nGlass);
+    G4cout << "--------------------> Glass MPT" << G4endl;
+    pGlassMPT->DumpTable();
+
+    Glass->SetMaterialPropertiesTable(pGlassMPT);
 }

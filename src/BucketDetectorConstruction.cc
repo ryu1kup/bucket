@@ -245,7 +245,7 @@ void BucketDetectorConstruction::ConstructBucket(){
     auto *pOpReflectorSurface = new G4OpticalSurface("OpReflectorSurface");
     pOpReflectorSurface->SetType(dielectric_dielectric);
     pOpReflectorSurface->SetModel(unified);
-    pOpReflectorSurface->SetFinish(groundbackpainted);
+    pOpReflectorSurface->SetFinish(ground);
     pOpReflectorSurface->SetSigmaAlpha(m_pMaterials->ePTFESigmaAlpha());
     pOpReflectorSurface->SetMaterialPropertiesTable(ePTFE->GetMaterialPropertiesTable());
 
