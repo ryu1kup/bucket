@@ -262,6 +262,15 @@ void BucketDetectorConstruction::ConstructBucket(){
     pOpPMTAluminiumCoverSurface->SetMaterialPropertiesTable(Aluminium->GetMaterialPropertiesTable());
 
     m_pBorderWater2PMTAluminiumCover= new G4LogicalBorderSurface("AluminiumCoverSurface", m_pWaterPhysicalVolume, m_pPMTAluminiumCoverPhysicalVolume, pOpPMTAluminiumCoverSurface);
+
+    // water -> the PMT window
+    auto *pOpPMTWindowSurface = new G4OpticalSurface("OpPMTWindowSurface");
+    pOpPMTWindowSurface->SetType(dielectric_dielectric);
+    pOpPMTWindowSurface->SetModel(unified);
+    pOpPMTWindowSurface->SetFinish(polished);
+    pOpPMTWindowSurface->SetMaterialPropertiesTable(Glass->GetMaterialPropertiesTable());
+
+    m_pBorderWater2PMTWindow= new G4LogicalBorderSurface("WindowSurface", m_pWaterPhysicalVolume, m_pPMTWindowPhysicalVolume, pOpPMTWindowSurface);
 }
 
 void BucketDetectorConstruction::ConstructLaserInjector(G4double dLaserIrradiationX, G4double dLaserIrradiationY, G4double dLaserIrradiationZ){

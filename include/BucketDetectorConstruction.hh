@@ -84,6 +84,7 @@ class BucketDetectorConstruction : public G4VUserDetectorConstruction {
         G4LogicalBorderSurface *m_pBorderWater2ReflectorLid;
         G4LogicalBorderSurface *m_pBorderWater2ReflectorLidForHole;
         G4LogicalBorderSurface *m_pBorderWater2PMTAluminiumCover;
+        G4LogicalBorderSurface *m_pBorderWater2PMTWindow;
         G4LogicalBorderSurface *m_pBorderWater2InjectorHeadFront;
         G4LogicalBorderSurface *m_pBorderWater2InjectorHeadMiddle;
         G4LogicalBorderSurface *m_pBorderWater2InjectorHeadBack;

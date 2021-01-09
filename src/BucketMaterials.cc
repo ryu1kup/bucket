@@ -116,14 +116,18 @@ void BucketMaterials::DefineMaterials() const {
 
     // Optical properties Glass
     constexpr G4int nGlass = 7;
-    G4double pdGlassEnergy[nGlass] = {1.55*eV, 2.0664*eV, 2.48*eV, 2.755*eV, 3.1*eV, 4.133*eV, 6.2*eV};
+    G4double dGlassEnergy[nGlass] = {1.55*eV, 2.0664*eV, 2.48*eV, 2.755*eV, 3.1*eV, 4.133*eV, 6.2*eV};
     // Cauchy dispersion law n = 1.472 + 3760 / wavelength**2
-    G4double pdGlassRefractiveIndex[nGlass] = {1.478, 1.482, 1.487, 1.491, 1.496, 1.51, 1.57};
-    G4double pdGlassAbsorbtionLength[nGlass] = {300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm};
+    G4double dGlassRefractiveIndex[nGlass] = {1.478, 1.482, 1.487, 1.491, 1.496, 1.51, 1.57};
+    G4double dGlassAbsorbtionLength[nGlass] = {300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm, 300*mm};
+    G4double dGlassReflectivity[nGlass] = {1, 1, 1, 1, 1, 1, 1};
+    G4double dGlassTransmittance[nGlass] = {1 - DBL_MIN, 1 - DBL_MIN, 1 - DBL_MIN, 1 - DBL_MIN, 1 - DBL_MIN, 1 - DBL_MIN, 1 - DBL_MIN};
 
     G4MaterialPropertiesTable *pGlassMPT = new G4MaterialPropertiesTable();
-    pGlassMPT->AddProperty("RINDEX", pdGlassEnergy, pdGlassRefractiveIndex, nGlass);
-    pGlassMPT->AddProperty("ABSLENGTH", pdGlassEnergy, pdGlassAbsorbtionLength, nGlass);
+    pGlassMPT->AddProperty("RINDEX", dGlassEnergy, dGlassRefractiveIndex, nGlass);
+    pGlassMPT->AddProperty("ABSLENGTH", dGlassEnergy, dGlassAbsorbtionLength, nGlass);
+    pGlassMPT->AddProperty("REFLECTIVITY", dGlassEnergy, dGlassReflectivity, nGlass);
+    pGlassMPT->AddProperty("TRANSMITTANCE", dGlassEnergy, dGlassTransmittance, nGlass);
     G4cout << "--------------------> Glass MPT" << G4endl;
     pGlassMPT->DumpTable();
 
