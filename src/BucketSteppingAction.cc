@@ -30,36 +30,18 @@ void BucketSteppingAction::UserSteppingAction(const G4Step *pStep){
             && pStep->GetPostStepPoint()->GetStepStatus() == fGeomBoundary
             && pStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
         status = boundary->GetStatus();
-        if (status == Undefined) {
-            //G4cout << "Undefined" << G4endl;
-        } else if (status == FresnelRefraction) {
-            //G4cout << "FresnelRefraction" << G4endl;
-        } else if (status == FresnelReflection) {
+        if (status == FresnelReflection) {
             m_pAnalysisManager->IncrementNumFresnelReflection();
-            //G4cout << "FresnelReflection" << G4endl;
         } else if (status == TotalInternalReflection) {
             m_pAnalysisManager->IncrementNumTotalInternalReflection();
-            //G4cout << "TotalInternalReflection" << G4endl;
         } else if (status == LambertianReflection) {
-            //G4cout << "LambertianReflection" << G4endl;
             m_pAnalysisManager->IncrementNumLambertianReflection();
         } else if (status == LobeReflection) {
-            //G4cout << "LobeReflection" << G4endl;
             m_pAnalysisManager->IncrementNumLobeReflection();
         } else if (status == SpikeReflection) {
-            //G4cout << "SpikeReflection" << G4endl;
             m_pAnalysisManager->IncrementNumSpikeReflection();
         } else if (status == BackScattering) {
-            //G4cout << "BackScattering" << G4endl;
             m_pAnalysisManager->IncrementNumBackscattering();
-        } else if (status == Absorption) {
-            //G4cout << "Absorption" << G4endl;
-        } else if (status == Detection) {
-            //G4cout << "Detection" << G4endl;
-        } else if (status == NotAtBoundary) {
-            //G4cout << "NotAtBoundary" << G4endl;
-        } else {
-            //G4cout << "Unexpected process: " << status << G4endl;
         }
     }
 
